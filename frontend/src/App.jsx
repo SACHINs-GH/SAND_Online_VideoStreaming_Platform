@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import React from 'react'
+import { Outlet } from 'react-router-dom'
+import {Footer,Header} from "./components"
 import './App.css'
 
 function App() {
-
   return (
     <>
-      <h1 className='bg-gray-400 text-green rounded-xl p-4'>APP TEST 🫡</h1>
+      <Header/>
+      <Outlet/>
+      <Footer/>
     </>
   )
 }
