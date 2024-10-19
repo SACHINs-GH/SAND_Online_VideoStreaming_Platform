@@ -43,3 +43,10 @@ app.get('/',(req,res)=>{
         console.log(`Check::`, error);
     }
 })();
+
+import userRoutes from './routes/userRoutes.js'
+app.use('/user',userRoutes);
+app.use((err,res)=>{
+    console.error(err.stack);
+    res.status(500).json({ message :'Internal server error'})
+});
