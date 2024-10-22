@@ -1,7 +1,81 @@
-import React from "react";
-function Home (){
-    return(
-        <div className="bg-gray-400 text-aquamarine rounded-3xl w-auto h-auto p-2 m-2">Home</div>
-    )
+import React, { useState } from "react";
+
+function Home() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      <div
+        className={`${
+          isSidebarOpen ? "w-64" : "w-20"
+        } bg-gray-800 text-white transition-all duration-300 flex flex-col`}
+      >
+        <button
+          className="p-4  hover:bg-gray-700"
+          onClick={toggleSidebar}
+        >
+          <div className="relative w-8 h-8">
+            <span
+              className={`block h-1 bg-white rounded transition-transform duration-300 ${
+                isSidebarOpen ? "rotate-45 translate-y-2" : ""
+              }`}
+            ></span>
+            <span
+              className={`block h-1 bg-white rounded my-1 transition-opacity duration-300 ${
+                isSidebarOpen ? "opacity-0" : ""
+              }`}
+            ></span>
+            <span
+              className={`block h-1 bg-white rounded transition-transform duration-300 ${
+                isSidebarOpen ? "-rotate-45 -translate-y-2" : ""
+              }`}
+            ></span>
+          </div>
+        </button>
+
+        <div className="flex flex-col space-y-4 mt-6">
+          <a href="#" className="flex items-center p-4 hover:bg-gray-700">
+            <span className="material-icons">home</span>
+            {isSidebarOpen && <span className="ml-4">Home</span>}
+          </a>
+          <a href="#" className="flex items-center p-4 hover:bg-gray-700">
+            <span className="material-icons">explore</span>
+            {isSidebarOpen && <span className="ml-4">Explore</span>}
+          </a>
+          <a href="#" className="flex items-center p-4 hover:bg-gray-700">
+            <span className="material-icons">subscriptions</span>
+            {isSidebarOpen && <span className="ml-4">Subscriptions</span>}
+          </a>
+          <a href="#" className="flex items-center p-4 hover:bg-gray-700">
+            <span className="material-icons">library_add</span>
+            {isSidebarOpen && <span className="ml-4">Library</span>}
+          </a>
+        </div>
+      </div>
+
+      <div className="flex-1 p-4 overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array(12)
+            .fill(0)
+            .map((_, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-md p-2 max-w-xl sm:max-w-lg "
+              >
+                <div className="bg-gray-300 h-48 mb-4"></div>
+                <h3 className="text-lg font-semibold">Video Title {index + 1}</h3>
+                <p className="text-gray-600">Channel Name</p>
+                <p className="text-gray-500">1.2M views • 3 days ago</p>
+              </div>
+            ))}
+        </div>
+      </div>
+    </div>
+  );
 }
-export default Home
+
+export default Home;
