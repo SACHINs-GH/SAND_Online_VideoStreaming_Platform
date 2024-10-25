@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -39,19 +39,19 @@ function Home() {
 
         <div className="flex flex-col space-y-4 mt-6">
           <a href="#" className="flex items-center p-4 hover:bg-gray-700">
-            <span className="material-icons">home</span>
+            <img src="./src/assets/svgs/home.png" alt="search" height={28} width={28} />
             {isSidebarOpen && <span className="ml-4">Home</span>}
           </a>
           <a href="#" className="flex items-center p-4 hover:bg-gray-700">
-            <span className="material-icons">explore</span>
+            <img src="./src/assets/svgs/search.png" alt="search" height={28} width={28} />
             {isSidebarOpen && <span className="ml-4">Explore</span>}
           </a>
           <a href="#" className="flex items-center p-4 hover:bg-gray-700">
-            <span className="material-icons">subscriptions</span>
+            <img src="./src/assets/svgs/crown.png" alt="search" height={28} width={28} /> 
             {isSidebarOpen && <span className="ml-4">Subscriptions</span>}
           </a>
           <a href="#" className="flex items-center p-4 hover:bg-gray-700">
-            <span className="material-icons">library_add</span>
+            <img src="./src/assets/svgs/playlist.png" alt="search" height={28} width={28} />
             {isSidebarOpen && <span className="ml-4">Library</span>}
           </a>
         </div>

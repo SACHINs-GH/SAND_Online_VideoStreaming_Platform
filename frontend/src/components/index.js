@@ -5,4 +5,5 @@ import Header from "./Header"
 import Home from "./Home"
 import Login from "./Login"
 import Register from "./Register"
-export {About,Contact,Footer,Header,Home,Login,Register}
+import Profile from "./Profile"
+export {About,Contact,Footer,Header,Home,Login,Register,Profile}
