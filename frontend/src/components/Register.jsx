@@ -11,7 +11,7 @@ const Register = () => {
         {/* Already Have an Account */}
         <div className="flex justify-center mb-6 text-sm text-gray-600">
           <span>Already have an account?</span>&nbsp;
-          <a href="#" className="text-blue-600 hover:underline">Sign in</a>
+          <a href="login" className="text-blue-600 hover:underline">Sign in</a>
         </div>
 
         {/* First Name and Last Name */}

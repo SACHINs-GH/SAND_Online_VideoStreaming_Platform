@@ -29,8 +29,8 @@ const Login = () => {
 
         {/* Sign Up Link */}
         <div className="flex justify-center text-sm text-gray-600">
-          <span>Don't have an account?</span>&nbsp;
-          <a href="#" className="text-blue-600 hover:underline">Sign Up now</a>
+          <span>Don't have an account?</span>
+          <a href="register" className="text-blue-600 hover:underline">Sign Up now</a>
         </div>
       </div>
     </div>

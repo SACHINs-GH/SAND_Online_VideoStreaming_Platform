@@ -4,7 +4,7 @@ function Header() {
   return (
     <div className="flex justify-between items-center p-4 bg-white shadow-md h-16">
       <div className="flex items-center justify-center p-3 w-1/6">
-        <h1 className="text-xl">LOGO</h1>
+        <img src="./src/assets/images/SAND.png" alt="logo" height={50} width={50} />
       </div>
 
       <div className="flex items-center w-1/2">
@@ -13,8 +13,8 @@ function Header() {
           placeholder="Search"
           className="p-2 w-full text-center border border-gray-300 rounded-l-full focus:outline-none text-lg"
         />
-        <button className="p-2.5 bg-gray-200 border-l border-gray-300 rounded-r-full">
-          Search
+        <button className="p-2.5 bg-blue-300 border-l border-gray-300 rounded-r-full">
+          <img src="./src/assets/svgs/search.png" alt="search" height={28} width={28} />
         </button>
       </div>
 
