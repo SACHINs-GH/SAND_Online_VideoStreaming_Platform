@@ -15,10 +15,10 @@ router.post("/register", upload.fields([
     }
 ]), async (req, res) => {
     try {
-        const { username, fullname, password, email } = req.body;
+        const { channelname, firstname,lastname, password, email } = req.body;
 
         // Validation: Check if all fields are provided
-        if (!username || !password || !email || !fullname) {
+        if (!channelname || !password || !email || !firstname || !lastname) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -45,8 +45,8 @@ router.post("/register", upload.fields([
 
         // Create user
         const user = await User.create({
-            username,  
-            fullname,
+            channelname,  
+            fullname:firstname+" "+lastname,
             password,  
             email,
             avatar: avatarUrl,
