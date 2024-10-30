@@ -3,9 +3,30 @@ import { User } from '../model/usermodel.js';
 import { uploadCloudinary } from "../cloudinary.js";
 import { upload } from '../multer.js';
 import {verifyJWT} from '../verifyJWT.js'
+import { Subscription } from "../model/subscriptionmodel.js";
+import { Video } from "../model/videoModel.js";
+import { Playlist } from "../model/playlistmodel.js";
+import {Comment} from "../model/commentmodel.js"
 
 const router = Router();
+// generate tokens
+const generateTokens = async(userId)=>{
+   try {
+     const user = await User.findById(userId);
+     if(!user){
+         throw new Error("user not found");
+     }
+     const accessToken = await user.generateAccessToken ();
+     const refreshToken = await user.generateRefreshToken();
+     user.refreshToken = refreshToken;
+     await user.save({ validateBeforeSave: false });
+     return { accessToken, refreshToken };
 
+   } catch (error) {
+        console.error("Error generating tokens:", error);
+        throw error; 
+   }
+}
 
 // 1.Register Route
 router.post("/register", upload.fields([
@@ -121,16 +142,9 @@ router.post("/logout", verifyJWT, async (req, res) => {
         await User.findByIdAndUpdate(
             req.user._id,
         );
-
-        const options = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-        };
-
         return res.status(200)
-            .clearCookie("accessToken", options)
-            .clearCookie("refreshToken", options)
+            .clearCookie("accessToken")
+            .clearCookie("refreshToken")
             .json({ message: "Successfully logged out. Come back soon!" });
 
     } catch (error) {
@@ -139,6 +153,29 @@ router.post("/logout", verifyJWT, async (req, res) => {
     }
 });
 
+//4.delete channel
+router.post("/deleteAccount", verifyJWT, async (req, res) => {
+    try {
+      const userId = req.user._id;
+      await Subscription.deleteMany({ subscriber: userId });
+      await Video.deleteMany({ owner: userId });
+      await Playlist.deleteMany({ owner: userId });
+      await Comment.deleteMany({ owner: userId });
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User does not exist" });
+      }
+      const deletedUser = await User.deleteOne({ _id: userId });
+      if (deletedUser.deletedCount === 0) {
+        return res.status(400).json({ message: "Account deletion unsuccessful" });
+      }
+      return res.status(200).json({ message: "Account deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error during deletion" });
+    }
+  });
+  
 export default router;
 
 

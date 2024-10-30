@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     Suscribers:[
         {
             type:mongoose.Schema.Types.ObjectId,
-            ref:'User'
+            ref:'Subscription'
         }
     ],
     Videos: [
