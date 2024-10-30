@@ -25,8 +25,18 @@ const VideoSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    inPlayList:{
+        type:Boolean,
+        default:false
+    },
+    Likes:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        }
+    ],
     owner: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }
 },

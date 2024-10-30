@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema({
-    username: {
+    channelname: {
         type: String,
         required: true, 
         unique: true
@@ -31,10 +31,34 @@ const userSchema = new mongoose.Schema({
     refreshToken: {
         type: String
     },
+    Suscribers:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'User'
+        }
+    ],
     Videos: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Video'
+        }
+    ],
+    SavedVideo:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Video"
+        }
+    ],
+    PlayLists:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'Playlist'
+        }
+    ],
+    SavedPlayList:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Playlist"
         }
     ]
 },
@@ -60,7 +84,7 @@ userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
             id: this._id,
-            username: this.username, 
+            channelname: this.channelname, 
             email: this.email,
         },
         process.env.ACCESS_TOKEN_SECRET,
