@@ -176,6 +176,52 @@ router.post("/deleteAccount", verifyJWT, async (req, res) => {
     }
   });
   
+// 5. Upload Video Route
+router.post("/uploadVideo", verifyJWT, upload.fields([
+    { name: "videoFile", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 } 
+]), async (req, res) => {
+    try {
+        const { title, description, type } = req.body;
+
+        if (!title || !description || !type || !req.files?.videoFile || !req.files.videoFile[0] || !req.files?.thumbnail || !req.files.thumbnail[0]) {
+            return res.status(400).json({ message: "All fields are required including video and thumbnail." });
+        }
+
+        let videoUrl = "";
+        try {
+            const video = await uploadCloudinary(req.files.videoFile[0].path);
+            videoUrl = video?.url;
+        } catch (uploadError) {
+            console.error("Video Upload Error:", uploadError);
+            return res.status(500).json({ message: "Error uploading video." });
+        }
+
+        let thumbnailUrl = "";
+        try {
+            const thumbnail = await uploadCloudinary(req.files.thumbnail[0].path);
+            thumbnailUrl = thumbnail?.url;
+        } catch (uploadError) {
+            console.error("Thumbnail Upload Error:", uploadError);
+            return res.status(500).json({ message: "Error uploading thumbnail." });
+        }
+        const video = await Video.create({
+            videoFile: videoUrl,
+            thumbnail: thumbnailUrl,
+            type,
+            title,
+            description,
+            owner: req.user._id
+        });
+
+        return res.status(201).json({ message: "Video uploaded successfully.", video });
+
+    } catch (error) {
+        console.error("Video Upload Error:", error);
+        return res.status(500).json({ message: "Internal Server Error." });
+    }
+});
+
 export default router;
 
 
