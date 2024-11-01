@@ -37,24 +37,16 @@ router.post("/register", upload.fields([
 ]), async (req, res) => {
     try {
         const { channelname, firstname,lastname, password, email } = req.body;
-
-        // Validation: Check if all fields are provided
         if (!channelname || !password || !email || !firstname || !lastname) {
             return res.status(400).json({ message: "All fields are required." });
         }
-
-        // Check if user already exists
         const existedUser = await User.findOne({ email });
         if (existedUser) {
             return res.status(409).json({ message: "User already exists." });
         }
-
-        // Avatar upload validation
         if (!req.files?.avatar || !req.files.avatar[0]) {
             return res.status(400).json({ message: "Avatar required." });
         }
-
-        // Upload avatar to cloudinary
         let avatarUrl = "";
         try {
             const avatar = await uploadCloudinary(req.files.avatar[0].path);
@@ -64,7 +56,6 @@ router.post("/register", upload.fields([
             return res.status(500).json({ message: "Error uploading avatar." });
         }
 
-        // Create user
         const user = await User.create({
             channelname,  
             fullname:firstname+" "+lastname,
@@ -73,7 +64,6 @@ router.post("/register", upload.fields([
             avatar: avatarUrl,
         });
 
-        // Select the user without sensitive fields
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
         if (!createdUser) {
@@ -92,27 +82,22 @@ router.post("/register", upload.fields([
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        //Validation :  Check if all fields are provided
         if (!email || !password) {
             return res.status(400).json({ message: "All fields are required to log in." });
         }
 
-        // check or find the user in the database
         const user = await User.findOne({ email });
-
-        // If User not existed then tell user for registration
         if (!user) {
             return res.status(404).json({ message: "User not found. Please register first." });
         }
-        // Validate Password if user existed
         const isPasswordValid = await user.isPasswordCorrect(password);
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Incorrect password. Please try again." });
         }
-        // generate AccessToken and refresh Token
+    
         const { accessToken, refreshToken } = await generateTokens(user._id);
 
-        // logged in user
+        
         const loggedInUser = await User.findById(user._id).select('-password -refreshToken');
 
         const options = {
@@ -219,6 +204,49 @@ router.post("/uploadVideo", verifyJWT, upload.fields([
     } catch (error) {
         console.error("Video Upload Error:", error);
         return res.status(500).json({ message: "Internal Server Error." });
+    }
+});
+//6.video Delete Route
+router.post('/deleteVideo/:videoId', verifyJWT, async (req, res) => {
+    try {
+        const videoId = req.params.videoId;
+
+        const video = await Video.findById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: "Video not found." });
+        }
+        
+        if (!video.owner.equals(req.user._id)) {
+            return res.status(403).json({ message: "You do not have permission to delete this video." });
+        }
+
+        try {
+            await uploadCloudinary.uploader.destroy(video.videoFile);
+            await uploadCloudinary.uploader.destroy(video.thumbnail);
+        } catch (cloudinaryError) {
+            console.error("Cloudinary Deletion Error:", cloudinaryError);
+            return res.status(500).json({ message: "Error deleting video from Cloudinary." });
+        }
+
+        await Video.findByIdAndDelete(videoId);
+
+        await Comment.deleteMany({ video: videoId });
+
+        await Playlist.updateMany(
+            { videos: videoId },
+            { $pull: { videos: videoId } }
+        );
+
+        await User.findByIdAndUpdate(
+            req.user._id,
+            { $pull: { Videos: videoId } }
+        );
+
+        return res.status(200).json({ message: "Video deleted successfully." });
+        
+    } catch (error) {
+        console.error("Delete Video Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 });
 
