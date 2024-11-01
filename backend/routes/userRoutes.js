@@ -249,6 +249,213 @@ router.post('/deleteVideo/:videoId', verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
+// 7. Like Video Route
+router.post("/likeVideo/:videoId", verifyJWT, async (req, res) => {
+    try {
+        const videoId = req.params.videoId;
+        const userId = req.user._id;
+
+        const video = await Video.findById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: "Video not found." });
+        }
+
+        if (video.Likes.includes(userId)) {
+            return res.status(400).json({ message: "Video already liked." });
+        }
+
+        video.Likes.push(userId);
+        await video.save();
+
+        return res.status(200).json({ message: "Video liked successfully." });
+    } catch (error) {
+        console.error("Like Video Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// 8. Unlike Video Route
+router.post("/unlikeVideo/:videoId", verifyJWT, async (req, res) => {
+    try {
+        const videoId = req.params.videoId;
+        const userId = req.user._id;
+
+        const video = await Video.findById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: "Video not found." });
+        }
+
+        if (!video.Likes.includes(userId)) {
+            return res.status(400).json({ message: "Video not yet liked." });
+        }
+
+        video.Likes = video.Likes.filter(id => !id.equals(userId));
+        await video.save();
+
+        return res.status(200).json({ message: "Video unliked successfully." });
+    } catch (error) {
+        console.error("Unlike Video Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// 9. Like Playlist Route
+router.post("/likePlaylist/:playlistId", verifyJWT, async (req, res) => {
+    try {
+        const playlistId = req.params.playlistId;
+        const userId = req.user._id;
+
+        const playlist = await Playlist.findById(playlistId);
+        if (!playlist) {
+            return res.status(404).json({ message: "Playlist not found." });
+        }
+
+        if (playlist.Likes && playlist.Likes.includes(userId)) {
+            return res.status(400).json({ message: "Playlist already liked." });
+        }
+
+        playlist.Likes = [...(playlist.Likes || []), userId];
+        await playlist.save();
+
+        return res.status(200).json({ message: "Playlist liked successfully." });
+    } catch (error) {
+        console.error("Like Playlist Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// 10. Unlike Playlist Route
+router.post("/unlikePlaylist/:playlistId", verifyJWT, async (req, res) => {
+    try {
+        const playlistId = req.params.playlistId;
+        const userId = req.user._id;
+
+        const playlist = await Playlist.findById(playlistId);
+        if (!playlist) {
+            return res.status(404).json({ message: "Playlist not found." });
+        }
+
+        if (!playlist.Likes || !playlist.Likes.includes(userId)) {
+            return res.status(400).json({ message: "Playlist not yet liked." });
+        }
+
+        playlist.Likes = playlist.Likes.filter(id => !id.equals(userId));
+        await playlist.save();
+
+        return res.status(200).json({ message: "Playlist unliked successfully." });
+    } catch (error) {
+        console.error("Unlike Playlist Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// 11. Upload Playlist Route
+router.post("/uploadPlaylist", verifyJWT, async (req, res) => {
+    try {
+        const { name, description, videos } = req.body;
+
+        if (!name || !description || !videos) {
+            return res.status(400).json({ message: "All fields are required." });
+        }
+
+        const playlist = await Playlist.create({
+            name,
+            description,
+            videos,
+            owner: req.user._id
+        });
+
+        return res.status(201).json({ message: "Playlist created successfully.", playlist });
+    } catch (error) {
+        console.error("Upload Playlist Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// 12. Add Video to Playlist Route
+router.post("/addVideoToPlaylist/:playlistId", verifyJWT, async (req, res) => {
+    try {
+        const playlistId = req.params.playlistId;
+        const { videoId } = req.body;
+
+        const playlist = await Playlist.findById(playlistId);
+        if (!playlist) {
+            return res.status(404).json({ message: "Playlist not found." });
+        }
+
+        if (!playlist.owner.equals(req.user._id)) {
+            return res.status(403).json({ message: "You do not have permission to modify this playlist." });
+        }
+
+        if (playlist.videos.includes(videoId)) {
+            return res.status(400).json({ message: "Video already in playlist." });
+        }
+
+        playlist.videos.push(videoId);
+        await playlist.save();
+
+        return res.status(200).json({ message: "Video added to playlist successfully." });
+    } catch (error) {
+        console.error("Add Video to Playlist Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// 13. Subscribe to Channel Route
+router.post("/subscribe/:channelId", verifyJWT, async (req, res) => {
+    try {
+        const channelId = req.params.channelId;
+        const userId = req.user._id;
+
+        if (channelId === userId.toString()) {
+            return res.status(400).json({ message: "Cannot subscribe to your own channel." });
+        }
+
+        const existingSubscription = await Subscription.findOne({
+            subscriber: userId,
+            channel: channelId
+        });
+
+        if (existingSubscription) {
+            return res.status(400).json({ message: "Already subscribed to this channel." });
+        }
+
+        await Subscription.create({
+            subscriber: userId,
+            channel: channelId
+        });
+
+        return res.status(200).json({ message: "Subscribed to channel successfully." });
+    } catch (error) {
+        console.error("Subscribe to Channel Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// 14. Unsubscribe from Channel Route
+router.post("/unsubscribe/:channelId", verifyJWT, async (req, res) => {
+    try {
+        const channelId = req.params.channelId;
+        const userId = req.user._id;
+
+        const subscription = await Subscription.findOne({
+            subscriber: userId,
+            channel: channelId
+        });
+
+        if (!subscription) {
+            return res.status(404).json({ message: "Subscription not found." });
+        }
+
+        await Subscription.deleteOne({ _id: subscription._id });
+
+        return res.status(200).json({ message: "Unsubscribed from channel successfully." });
+    } catch (error) {
+        console.error("Unsubscribe from Channel Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
 
 export default router;
 
