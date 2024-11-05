@@ -456,6 +456,53 @@ router.post("/unsubscribe/:channelId", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
+//15.Search User By User Name
+router.post("/getUsers1", verifyJWT, async (req, res) => {
+    try {
+        const { fullname } = req.body; 
+        if (!fullname) {
+            return res.status(400).json({ message: "For searching users, please enter a name." });
+        }
+
+        const users = await User.find({ fullname: fullname });
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: "No user found with this name." });
+        }
+
+        return res.status(200).json({ users: users });
+    
+    } catch (error) {
+        return res.status(503).json({ message: "Internal Server error" });
+    }
+});
+//16.Search User By channel name
+router.post("/getUsers2", verifyJWT, async (req, res) => {
+    try {
+        const { channelname } = req.body; 
+        if (!channelname) {
+            return res.status(400).json({ message: "For searching users, please enter a name." });
+        }
+
+        const users = await User.find({ channelname: channelname });
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: "No channel found with this name." });
+        }
+
+        return res.status(200).json({ users: users });
+    
+    } catch (error) {
+        return res.status(503).json({ message: "Internal Server error" });
+    }
+});
+//17.get all Videos
+router.get('/getAllVideos',verifyJWT,async(req,res)=>{
+    try {
+        const video = await Video.find();
+        return res.status(203).json({video:video});
+    } catch (error) {
+        return res.status(504).json({message:"Internal Server Error"})
+    }
+})
 
 
 export default router;
