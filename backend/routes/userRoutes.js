@@ -48,6 +48,7 @@ router.post("/register", upload.fields([
             return res.status(400).json({ message: "Avatar required." });
         }
         let avatarUrl = "";
+        console.log(req.files.avatar[0].path)
         try {
             const avatar = await uploadCloudinary(req.files.avatar[0].path);
             avatarUrl = avatar?.url;

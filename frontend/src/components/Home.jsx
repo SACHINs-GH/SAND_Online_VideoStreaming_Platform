@@ -38,27 +38,23 @@ function Home() {
         </button>
 
         <div className="flex flex-col space-y-4 mt-6">
-          <a href="#" className="flex items-center p-4 hover:bg-gray-700">
+          <a href="/" className="flex items-center p-4 hover:bg-gray-700">
             <img src="./src/assets/svgs/home.png" alt="search" height={28} width={28} />
             {isSidebarOpen && <span className="ml-4">Home</span>}
           </a>
-          <a href="#" className="flex items-center p-4 hover:bg-gray-700">
-            <img src="./src/assets/svgs/search.png" alt="search" height={28} width={28} />
-            {isSidebarOpen && <span className="ml-4">Explore</span>}
+          <a href="/upload" className="flex items-center p-4 hover:bg-gray-700">
+            <img src="./src/assets/svgs/upload.png" alt="search" height={28} width={28} />
+            {isSidebarOpen && <span className="ml-4">Upload</span>}
           </a>
-          <a href="#" className="flex items-center p-4 hover:bg-gray-700">
+          <a href="/subscription" className="flex items-center p-4 hover:bg-gray-700">
             <img src="./src/assets/svgs/crown.png" alt="search" height={28} width={28} /> 
             {isSidebarOpen && <span className="ml-4">Subscriptions</span>}
-          </a>
-          <a href="#" className="flex items-center p-4 hover:bg-gray-700">
-            <img src="./src/assets/svgs/playlist.png" alt="search" height={28} width={28} />
-            {isSidebarOpen && <span className="ml-4">Library</span>}
           </a>
         </div>
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-3">
           {Array(12)
             .fill(0)
             .map((_, index) => (

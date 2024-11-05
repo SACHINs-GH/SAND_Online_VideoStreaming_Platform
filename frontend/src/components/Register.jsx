@@ -2,9 +2,9 @@ import React from 'react';
 
 const Register = () => {
   return (
-    <div className="relative flex justify-center items-center h-screen bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1728827098446-a77f1c54ac74?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw0fHx8ZW58MHx8fHx8')` }}>
+    <div className="relative flex justify-center items-center h-8/10 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1728827098446-a77f1c54ac74?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw0fHx8ZW58MHx8fHx8')` }}>
       
-      <div className="bg-transparent bg-opacity-70 backdrop-filter backdrop-blur-lg p-8 rounded-lg shadow-2xl w-11/12 md:w-1/2 lg:w-1/3 transition-transform transform hover:scale-105">
+      <div className="bg-transparent bg-opacity-70 backdrop-filter backdrop-blur-lg p-6 rounded-lg shadow-2xl w-11/12 md:w-1/2 lg:w-1/3 transition-transform transform hover:scale-105">
         <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Create an Account</h1>
         
         <div className="flex justify-center mb-6 text-sm text-gray-600">

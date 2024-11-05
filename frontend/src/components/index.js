@@ -6,4 +6,6 @@ import Home from "./Home"
 import Login from "./Login"
 import Register from "./Register"
 import Profile from "./Profile"
-export {About,Contact,Footer,Header,Home,Login,Register,Profile}
+import Subscription from "./Subscription"
+import Uplaod from "./Upload"
+export {About,Contact,Footer,Header,Home,Login,Register,Profile,Subscription,Uplaod}
