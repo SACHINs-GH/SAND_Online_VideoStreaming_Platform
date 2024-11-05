@@ -503,7 +503,34 @@ router.get('/getAllVideos',verifyJWT,async(req,res)=>{
         return res.status(504).json({message:"Internal Server Error"})
     }
 })
+//get userdata and video
+router.post('/getAfterSearch', verifyJWT, async (req, res) => {
+    try {
+        const { data } = req.body;
+        let SearchedData = await User.find({ fullname: data });
 
+        if (!SearchedData || SearchedData.length === 0) {
+            SearchedData = await User.find({ channelname: data });
+        }
+        
+        if (!SearchedData || SearchedData.length === 0) {
+            SearchedData = await Video.find({ type: data });
+        }
+        
+        if (!SearchedData || SearchedData.length === 0) {
+            SearchedData = await Video.find({ title: data });
+        }
+
+        if (!SearchedData || SearchedData.length === 0) {
+            return res.status(403).json({ message: "Such type of user or video not found" });
+        }
+
+        return res.status(201).json({ SearchedData });
+    } catch (error) {
+        console.error(error);
+        return res.status(503).json({ message: "Internal Server Error" });
+    }
+});
 
 export default router;
 
