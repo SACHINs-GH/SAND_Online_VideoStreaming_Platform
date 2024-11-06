@@ -5,7 +5,6 @@ import { upload } from '../multer.js';
 import {verifyJWT} from '../verifyJWT.js'
 import { Subscription } from "../model/subscriptionmodel.js";
 import { Video } from "../model/videoModel.js";
-import { Playlist } from "../model/playlistmodel.js";
 import {Comment} from "../model/commentmodel.js"
 
 const router = Router();
@@ -145,7 +144,6 @@ router.post("/deleteAccount", verifyJWT, async (req, res) => {
       const userId = req.user._id;
       await Subscription.deleteMany({ subscriber: userId });
       await Video.deleteMany({ owner: userId });
-      await Playlist.deleteMany({ owner: userId });
       await Comment.deleteMany({ owner: userId });
       const user = await User.findById(userId);
       if (!user) {
@@ -233,11 +231,6 @@ router.post('/deleteVideo/:videoId', verifyJWT, async (req, res) => {
 
         await Comment.deleteMany({ video: videoId });
 
-        await Playlist.updateMany(
-            { videos: videoId },
-            { $pull: { videos: videoId } }
-        );
-
         await User.findByIdAndUpdate(
             req.user._id,
             { $pull: { Videos: videoId } }
@@ -299,109 +292,6 @@ router.post("/unlikeVideo/:videoId", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
-
-// 9. Like Playlist Route
-router.post("/likePlaylist/:playlistId", verifyJWT, async (req, res) => {
-    try {
-        const playlistId = req.params.playlistId;
-        const userId = req.user._id;
-
-        const playlist = await Playlist.findById(playlistId);
-        if (!playlist) {
-            return res.status(404).json({ message: "Playlist not found." });
-        }
-
-        if (playlist.Likes && playlist.Likes.includes(userId)) {
-            return res.status(400).json({ message: "Playlist already liked." });
-        }
-
-        playlist.Likes = [...(playlist.Likes || []), userId];
-        await playlist.save();
-
-        return res.status(200).json({ message: "Playlist liked successfully." });
-    } catch (error) {
-        console.error("Like Playlist Error:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
-// 10. Unlike Playlist Route
-router.post("/unlikePlaylist/:playlistId", verifyJWT, async (req, res) => {
-    try {
-        const playlistId = req.params.playlistId;
-        const userId = req.user._id;
-
-        const playlist = await Playlist.findById(playlistId);
-        if (!playlist) {
-            return res.status(404).json({ message: "Playlist not found." });
-        }
-
-        if (!playlist.Likes || !playlist.Likes.includes(userId)) {
-            return res.status(400).json({ message: "Playlist not yet liked." });
-        }
-
-        playlist.Likes = playlist.Likes.filter(id => !id.equals(userId));
-        await playlist.save();
-
-        return res.status(200).json({ message: "Playlist unliked successfully." });
-    } catch (error) {
-        console.error("Unlike Playlist Error:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
-// 11. Upload Playlist Route
-router.post("/uploadPlaylist", verifyJWT, async (req, res) => {
-    try {
-        const { name, description, videos } = req.body;
-
-        if (!name || !description || !videos) {
-            return res.status(400).json({ message: "All fields are required." });
-        }
-
-        const playlist = await Playlist.create({
-            name,
-            description,
-            videos,
-            owner: req.user._id
-        });
-
-        return res.status(201).json({ message: "Playlist created successfully.", playlist });
-    } catch (error) {
-        console.error("Upload Playlist Error:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
-// 12. Add Video to Playlist Route
-router.post("/addVideoToPlaylist/:playlistId", verifyJWT, async (req, res) => {
-    try {
-        const playlistId = req.params.playlistId;
-        const { videoId } = req.body;
-
-        const playlist = await Playlist.findById(playlistId);
-        if (!playlist) {
-            return res.status(404).json({ message: "Playlist not found." });
-        }
-
-        if (!playlist.owner.equals(req.user._id)) {
-            return res.status(403).json({ message: "You do not have permission to modify this playlist." });
-        }
-
-        if (playlist.videos.includes(videoId)) {
-            return res.status(400).json({ message: "Video already in playlist." });
-        }
-
-        playlist.videos.push(videoId);
-        await playlist.save();
-
-        return res.status(200).json({ message: "Video added to playlist successfully." });
-    } catch (error) {
-        console.error("Add Video to Playlist Error:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
 // 13. Subscribe to Channel Route
 router.post("/subscribe/:channelId", verifyJWT, async (req, res) => {
     try {

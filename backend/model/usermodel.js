@@ -49,18 +49,6 @@ const userSchema = new mongoose.Schema({
             ref:"Video"
         }
     ],
-    PlayLists:[
-        {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:'Playlist'
-        }
-    ],
-    SavedPlayList:[
-        {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Playlist"
-        }
-    ]
 },
 {
     timestamps: true
