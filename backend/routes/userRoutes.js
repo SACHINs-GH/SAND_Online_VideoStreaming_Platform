@@ -197,7 +197,8 @@ router.post("/uploadVideo", verifyJWT, upload.fields([
             description,
             owner: req.user._id
         });
-
+        await User.findByIdAndUpdate(req.user._id, { $push: { Videos: video._id } }, { new: true });
+        
         return res.status(201).json({ message: "Video uploaded successfully.", video });
 
     } catch (error) {
