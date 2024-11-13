@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
     channelname: {
         type: String,
         required: true, 
-        unique: true
     },
     fullname: {
         type: String,

@@ -28,55 +28,57 @@ const generateTokens = async(userId)=>{
 }
 
 // 1.Register Route
-router.post("/register", upload.fields([
-    {
-        name: "avatar",
-        maxCount: 1
-    }
-]), async (req, res) => {
-    try {
-        const { channelname, firstname,lastname, password, email } = req.body;
-        if (!channelname || !password || !email || !firstname || !lastname) {
-            return res.status(400).json({ message: "All fields are required." });
+router.post(
+    "/register",
+    upload.fields([{ name: "avatar", maxCount: 1 }]),
+    async (req, res) => {
+      try {
+        const { channelname, firstname, lastname, password, email } = req.body;
+        if (!channelname || !firstname || !lastname || !password || !email) {
+          return res.status(400).json({ message: "All fields are required." });
         }
         const existedUser = await User.findOne({ email });
         if (existedUser) {
-            return res.status(409).json({ message: "User already exists." });
+          return res.status(409).json({ message: "User already exists." });
         }
         if (!req.files?.avatar || !req.files.avatar[0]) {
-            return res.status(400).json({ message: "Avatar required." });
+          return res.status(400).json({ message: "Avatar file is required." });
         }
-        let avatarUrl = "";
-        console.log(req.files.avatar[0].path)
+        let avatarUrl;
         try {
-            const avatar = await uploadCloudinary(req.files.avatar[0].path);
-            avatarUrl = avatar?.url;
+          const avatarUploadResult = await uploadCloudinary(req.files.avatar[0].path);
+          if (!avatarUploadResult?.url) {
+            return res.status(500).json({ message: "Failed to upload avatar." });
+          }
+          avatarUrl = avatarUploadResult.url;
         } catch (uploadError) {
-            console.error("Avatar Upload Error:", uploadError);
-            return res.status(500).json({ message: "Error uploading avatar." });
+          console.error("Avatar Upload Error:", uploadError);
+          return res.status(500).json({ message: "Error uploading avatar." });
         }
-
         const user = await User.create({
-            channelname,  
-            fullname:firstname+" "+lastname,
-            password,  
-            email,
-            avatar: avatarUrl,
+          channelname,
+          fullname: `${firstname} ${lastname}`,
+          password,
+          email,
+          avatar: avatarUrl,
         });
-
+  
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
-
         if (!createdUser) {
-            return res.status(500).json({ message: "Server error during registration. Try again later." });
+          return res.status(500).json({ message: "Server error during registration." });
         }
-
-        return res.status(201).json({ message: "User registered successfully.", user: createdUser });
-
-    } catch (error) {
+        res.status(201).json({
+          message: "User registered successfully.",
+          user: createdUser
+        });
+  
+      } catch (error) {
         console.error("Register Error:", error);
-        return res.status(500).json({ message: "Internal Server Error." });
+        res.status(500).json({ message: "Internal Server Error." });
+      }
     }
-});
+  );
+  
 
 //2.Login Route
 router.post("/login", async (req, res) => {
