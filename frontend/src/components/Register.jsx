@@ -34,20 +34,18 @@ const Register = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
+      alert(response?.data?.message || 'Registration successful !');
+      if (response.data.accessToken && response.data.refreshToken) {
+          localStorage.setItem('accessToken', response.data.accessToken);
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+          dispatch(setAuth({
+            user: response.data.user,
+            accessToken: response.data.accessToken,
+            refreshToken: response.data.refreshToken,
+          }));
+        }
 
-      if (response.status === 201) {
-        dispatch(setAuth({
-          user: response.data.user,
-          accessToken: response.data.accessToken,
-          refreshToken: response.data.refreshToken,
-        }));
-
-        alert('Registration successful. Welcome, ' + response.data.user.fullname + '!');
         navigate('/login');
-      } else {
-        setErrorMessage(response.data.message || 'Registration failed.');
-        alert('Registration failed: ' + (response.data.message || 'An unknown error occurred.'));
-      }
     } catch (error) {
       console.error('Error during registration:', error);
       setErrorMessage(error.response?.data?.message || 'An error occurred during registration');
