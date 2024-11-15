@@ -16,7 +16,7 @@ function Header() {
       const accessToken = localStorage.getItem('accessToken');
       const response = await axios.post(
         "http://localhost:5000/user/logout",
-        {}, // empty body for logout
+        {},
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -26,7 +26,7 @@ function Header() {
       );
 
       if (response.status === 200) {
-        dispatch(clearAuth()); // Clears user state in Redux
+        dispatch(clearAuth()); 
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         alert("User Logout Successfully");

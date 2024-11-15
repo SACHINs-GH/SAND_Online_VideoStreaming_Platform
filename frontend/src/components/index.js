@@ -8,4 +8,5 @@ import Register from "./Register"
 import Profile from "./Profile"
 import Subscription from "./Subscription"
 import Uplaod from "./Upload"
-export {About,Contact,Footer,Header,Home,Login,Register,Profile,Subscription,Uplaod}
+import SideNavbar from "./sideNavbar"
+export {About,Contact,Footer,Header,Home,Login,Register,Profile,Subscription,Uplaod,SideNavbar}

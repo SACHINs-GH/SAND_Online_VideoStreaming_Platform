@@ -1,13 +1,16 @@
-import React from 'react'
+
 import { Outlet } from 'react-router-dom'
-import {Footer,Header} from "./components"
+import {Footer,Header,SideNavbar} from "./components"
 import './App.css'
 
 function App() {
   return (
     <>
       <Header/>
-      <Outlet/>
+      <div className='flex'>
+        <SideNavbar/>
+        <Outlet/>
+      </div>
       <Footer/>
     </>
   )
