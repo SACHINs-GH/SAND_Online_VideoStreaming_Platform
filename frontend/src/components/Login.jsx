@@ -20,21 +20,22 @@ const Login = () => {
       const response = await axios.post('http://localhost:5000/user/login', form, {
         withCredentials: true,
       });
-      if (response.data.accessToken && response.data.refreshToken) {
+      alert(`Welcome ${response.data.user.fullname}`);
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
         dispatch(setAuth({
           user: response.data.user,
           accessToken: response.data.accessToken,
           refreshToken: response.data.refreshToken,
         }));
         navigate('/');
-      }
     } catch (error) {
       alert(error.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
   return (
-    <div className="relative flex justify-center items-center h-screen bg-cover bg-center" 
+    <div className="relative flex w-full justify-center items-center h-screen bg-cover bg-center" 
          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1728827098446-a77f1c54ac74?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw0fHx8ZW58MHx8fHx8')` }}>
       <form onSubmit={handleSubmit} className="bg-white bg-opacity-80 p-8 rounded-xl shadow-lg w-11/12 max-w-md">
         <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">Sign in to Website</h1>

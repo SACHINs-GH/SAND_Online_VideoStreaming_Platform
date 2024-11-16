@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 
 function SideNavbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -8,7 +9,7 @@ function SideNavbar() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen sticky bg-gray-100">
       <div
         className={`${
           isSidebarOpen ? 'w-64' : 'w-20'
@@ -38,7 +39,7 @@ function SideNavbar() {
         </button>
 
         <div className="flex flex-col space-y-4 mt-6">
-          <a href="/" className="flex items-center p-4 hover:bg-gray-700">
+          <Link to="/" className="flex items-center p-4 hover:bg-gray-700">
             <img
               src="/assets/svgs/home.png"
               alt="Home"
@@ -46,8 +47,8 @@ function SideNavbar() {
               width={28}
             />
             {isSidebarOpen && <span className="ml-4">Home</span>}
-          </a>
-          <a href="/upload" className="flex items-center p-4 hover:bg-gray-700">
+          </Link>
+          <Link to="/upload" className="flex items-center p-4 hover:bg-gray-700">
             <img
               src="/assets/svgs/upload.png"
               alt="Upload"
@@ -55,8 +56,8 @@ function SideNavbar() {
               width={28}
             />
             {isSidebarOpen && <span className="ml-4">Upload</span>}
-          </a>
-          <a href="/subscription" className="flex items-center p-4 hover:bg-gray-700">
+          </Link>
+          <Link to="/subscription" className="flex items-center p-4 hover:bg-gray-700">
             <img
               src="/assets/svgs/crown.png" 
               alt="Subscriptions"
@@ -64,7 +65,7 @@ function SideNavbar() {
               width={28}
             />
             {isSidebarOpen && <span className="ml-4">Subscriptions</span>}
-          </a>
+          </Link>
         </div>
       </div>
     </div>

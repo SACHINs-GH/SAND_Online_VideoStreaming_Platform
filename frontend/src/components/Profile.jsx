@@ -9,7 +9,7 @@ function Profile() {
   // Redirect to login if no user is registered
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-200">
+      <div className="flex flex-col w-full items-center justify-center h-screen bg-gray-200">
         <h1 className="text-2xl font-semibold text-gray-700 mb-4">No user registered yet</h1>
         <button
           onClick={() => navigate('/login')}

@@ -1,5 +1,9 @@
-import React from "react";
-function Footer(){
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+function Footer() {
+    const user = useSelector((state) => state.auth.user);
+
     return (
         <footer className="bg-gray-800 text-white py-4">
             <div className="container mx-auto flex justify-between items-center px-4">
@@ -9,15 +13,18 @@ function Footer(){
                     <p className="text-sm">&copy; 2024 SAND | All rights reserved</p>
                 </div>
                 <div className="flex space-x-4">
-                    <a href="/" className="hover:underline hover:text-red-500">Home</a>
-                    <a href="/about" className="hover:underline hover:text-red-500">About</a>
-                    <a href="/contact" className="hover:underline hover:text-red-500">Contact</a>
-                    {/* Added These Just for Quick Navigation for some time i.e. until project is finished */}
-                    <a href="/login" className="hover:underline hover:text-red-500">Login</a>
-                    <a href="/profile" className="hover:underline hover:text-red-500">Profile</a>
+                    <Link to="/" className="hover:underline hover:text-red-500">Home</Link>
+                    <Link to="/about" className="hover:underline hover:text-red-500">About</Link>
+                    <Link to="/contact" className="hover:underline hover:text-red-500">Contact</Link>
+                    {!user ? (
+                        <Link to="/login" className="hover:underline hover:text-red-500">Login</Link>
+                    ) : (
+                        <Link to="/profile" className="hover:underline hover:text-red-500">Profile</Link>
+                    )}
                 </div>
             </div>
         </footer>
-    )
+    );
 }
-export default Footer
+
+export default Footer;
