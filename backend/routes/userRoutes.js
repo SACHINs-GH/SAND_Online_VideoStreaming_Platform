@@ -390,8 +390,8 @@ router.post("/getUsers2", verifyJWT, async (req, res) => {
 });
 //17.get all Videos
 router.get('/getAllVideos',verifyJWT,async(req,res)=>{
-    try {
-        const video = await Video.find().populate('owner', '_id avatar channelname fullname');
+    try { 
+        const video = await Video.find().populate('owner', '_id avatar channelname fullname Suscribers');
         return res.status(203).json({video:video});
     } catch (error) {
         return res.status(504).json({message:"Internal Server Error"})

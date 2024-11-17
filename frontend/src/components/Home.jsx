@@ -27,7 +27,12 @@ function Videos() {
                     withCredentials: true,
                 });
                 if (response.data.video && response.data.video.length) {
+                    // Filter out videos that belong to the current user
                     const filteredVideos = response.data.video.filter((video) => video.owner._id !== user._id);
+                    
+                    // Sort videos by the creation date (assuming `createdAt` exists)
+                    filteredVideos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
                     setVideos(filteredVideos);
                 } else {
                     setError('No videos available');
@@ -48,7 +53,6 @@ function Videos() {
         dispatch(watchVideo({ videoObject: video }));
         navigate("/watch");
     };
-    
 
     if (loading) {
         return <div className="text-center text-white">Loading...</div>;
@@ -67,17 +71,20 @@ function Videos() {
     }
 
     return (
-        <div className="bg-white w-full h-screen text-white p-8 md:p-16">
-            <div className="max-w-4xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="bg-white w-full min-h-screen text-white p-4 md:p-6">
+            <div className="w-full mx-auto">
+                <div 
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    style={{ maxHeight: 'calc(92vh)', overflowY: 'auto' }}
+                >
                     {videos.length === 0 ? (
                         <p className="text-lg text-center text-gray-400">No videos available</p>
                     ) : (
                         videos.map((video) => (
                             <div
                                 key={video._id}
-                                className="bg-gray-300 rounded-lg p-3 shadow-lg relative overflow-hidden group"
-                                style={{ height: '350px' }}
+                                className="bg-gray-300 rounded-lg p-2 shadow-lg relative overflow-hidden group"
+                                style={{ height: '330px' }}
                                 onClick={() => handleWatchVideo(video)}
                             >
                                 <img
