@@ -1,9 +1,15 @@
+// src/components/Videos.jsx
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
+import { watchVideo } from "../features/watchVideoSlice.js";
+import { useNavigate } from "react-router-dom";
 
 function Videos() {
     const user = useSelector((state) => state.auth.user);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -37,6 +43,13 @@ function Videos() {
         fetchVideos();
     }, [user]);
 
+    const handleWatchVideo = (video) => {
+        console.log('Dispatching video:', video);
+        dispatch(watchVideo({ videoObject: video }));
+        navigate("/watch");
+    };
+    
+
     if (loading) {
         return <div className="text-center text-white">Loading...</div>;
     }
@@ -65,6 +78,7 @@ function Videos() {
                                 key={video._id}
                                 className="bg-gray-300 rounded-lg p-3 shadow-lg relative overflow-hidden group"
                                 style={{ height: '350px' }}
+                                onClick={() => handleWatchVideo(video)}
                             >
                                 <img
                                     src={video.thumbnail}

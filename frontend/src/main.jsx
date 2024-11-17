@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import {RouterProvider , createBrowserRouter, 
 createRoutesFromElements, Route} from 'react-router-dom'
-import {About,Contact,Home,Login,Profile,Register,Subscription,Uplaod} from "./components"
+import {About,Contact,Home,Login,Profile,Register,Subscription,Uplaod,ViewVideo} from "./components"
 import App from './App.jsx'
 import './index.css'
 import store from '../src/store/store.js'
@@ -18,6 +18,7 @@ const router=createBrowserRouter(
       <Route path="profile" element={<Profile/>}/>
       <Route path="subscription" element={<Subscription/>}/>
       <Route path="upload" element={<Uplaod/>}/>
+      <Route path='watch' element={<ViewVideo/>}/>
     </Route>
   )
 )

@@ -9,4 +9,5 @@ import Profile from "./Profile"
 import Subscription from "./Subscription"
 import Uplaod from "./Upload"
 import SideNavbar from "./sideNavbar"
-export {About,Contact,Footer,Header,Home,Login,Register,Profile,Subscription,Uplaod,SideNavbar}
+import ViewVideo from "./ViewVideo"
+export {About,Contact,Footer,Header,Home,Login,Register,Profile,Subscription,Uplaod,SideNavbar,ViewVideo}
