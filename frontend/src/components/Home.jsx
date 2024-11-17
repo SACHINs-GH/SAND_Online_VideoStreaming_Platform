@@ -1,33 +1,35 @@
-import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
 function Videos() {
-    const user = useSelector((state) => state.auth.user);  // Get user from Redux store
+    const user = useSelector((state) => state.auth.user);
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (!user) {
-            setError('You are not registered yet');  // Show error if user is not logged in
+            setError('You are not registered yet');
             setLoading(false);
             return;
         }
-        
+
         const fetchVideos = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/user/getAllVideos', {
-                    withCredentials: true, // Ensure cookies are sent (for session management)
+                    withCredentials: true,
                 });
-                if (response.data && response.data.length) {
-                    setVideos(response.data);  // Store the fetched videos in state
+                if (response.data.video && response.data.video.length) {
+                    const filteredVideos = response.data.video.filter((video) => video.owner._id !== user._id);
+                    setVideos(filteredVideos);
                 } else {
-                    setError('No videos available');  // Handle case if no videos exist
+                    setError('No videos available');
                 }
                 setLoading(false);
             } catch (err) {
-                setError('Failed to fetch videos');  // Handle errors
+                console.log(err);
+                setError('Failed to fetch videos');
                 setLoading(false);
             }
         };
@@ -41,7 +43,7 @@ function Videos() {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center w-full h-screen bg-gray-900 text-white">
+            <div className="flex items-center justify-center w-full h-screen bg-white text-white">
                 <div className="text-center p-8 bg-gray-800 rounded-lg shadow-lg">
                     <h2 className="text-3xl font-bold text-red-500 mb-4">Oops!</h2>
                     <p className="text-xl">{error}</p>
@@ -52,25 +54,48 @@ function Videos() {
     }
 
     return (
-        <div className="bg-gray-900 w-full h-screen text-white p-8 md:p-16">
+        <div className="bg-white w-full h-screen text-white p-8 md:p-16">
             <div className="max-w-4xl mx-auto">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center text-teal-500">
-                    Available Videos
-                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {videos.length === 0 ? (
                         <p className="text-lg text-center text-gray-400">No videos available</p>
                     ) : (
                         videos.map((video) => (
-                            <div key={video.id} className="bg-gray-800 rounded-lg p-6 shadow-lg">
-                                <h3 className="text-2xl font-semibold mb-4 text-emerald-400">
-                                    {video.title}
-                                </h3>
-                                <p className="text-gray-300">{video.description}</p>
-                                <video controls className="w-full mt-4">
-                                    <source src={video.url} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
+                            <div
+                                key={video._id}
+                                className="bg-gray-300 rounded-lg p-3 shadow-lg relative overflow-hidden group"
+                                style={{ height: '350px' }}
+                            >
+                                <img
+                                    src={video.thumbnail}
+                                    alt={video.title}
+                                    className="w-full h-2/3 object-cover rounded-lg group-hover:opacity-50 transition-opacity duration-300"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <button className="px-4 py-2 bg-emerald-500 text-white font-semibold rounded-lg shadow-md">
+                                        Watch Video
+                                    </button>
+                                </div>
+
+                                <div className="flex items-center mt-3 space-x-3">
+                                    <img
+                                        src={video.owner.avatar}
+                                        alt={video.owner.channelname}
+                                        className="w-10 h-10 rounded-full object-cover"
+                                    />
+                                    <div>
+                                        <p className="text-sm font-semibold text-black">{video.owner.channelname}</p>
+                                        <p className="text-xs text-black">{video.owner.fullname}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-2">
+                                    <h3 className="text-xl font-semibold text-emerald-400">
+                                        {video.title}
+                                    </h3>
+                                    <p className="text-black text-sm line-clamp-2">
+                                        {video.description}
+                                    </p>
+                                </div>
                             </div>
                         ))
                     )}

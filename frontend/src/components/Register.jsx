@@ -33,6 +33,7 @@ const Register = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
+      alert(response?.data?.message);
 
       if (response.data.accessToken && response.data.refreshToken) {
         dispatch(setAuth({
