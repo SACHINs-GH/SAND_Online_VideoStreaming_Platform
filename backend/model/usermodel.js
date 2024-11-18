@@ -33,19 +33,13 @@ const userSchema = new mongoose.Schema({
     Suscribers:[
         {
             type:mongoose.Schema.Types.ObjectId,
-            ref:'Subscription'
+            ref:'User'
         }
     ],
     Videos: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Video'
-        }
-    ],
-    SavedVideo:[
-        {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Video"
         }
     ],
 },

@@ -3,7 +3,6 @@ import { User } from '../model/usermodel.js';
 import { uploadCloudinary } from "../cloudinary.js";
 import { upload } from '../multer.js';
 import {verifyJWT} from '../verifyJWT.js'
-import { Subscription } from "../model/subscriptionmodel.js";
 import { Video } from "../model/videoModel.js";
 import {Comment} from "../model/commentmodel.js"
 
@@ -252,7 +251,7 @@ router.post("/likeVideo/:videoId", verifyJWT, async (req, res) => {
     try {
         const videoId = req.params.videoId;
         const userId = req.user._id;
-
+        console.log(userId)
         const video = await Video.findById(videoId);
         if (!video) {
             return res.status(404).json({ message: "Video not found." });
@@ -310,16 +309,13 @@ router.post("/subscribe/:channelId", verifyJWT, async (req, res) => {
             subscriber: userId,
             channel: channelId
         });
-
+        console.log(existingSubscription)
         if (existingSubscription) {
             return res.status(400).json({ message: "Already subscribed to this channel." });
         }
 
-        await Subscription.create({
-            subscriber: userId,
-            channel: channelId
-        });
-
+        req.user.Suscribers.push(userId);
+        await video.save();
         return res.status(200).json({ message: "Subscribed to channel successfully." });
     } catch (error) {
         console.error("Subscribe to Channel Error:", error);
