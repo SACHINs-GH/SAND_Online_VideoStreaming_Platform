@@ -35,7 +35,7 @@ function Profile() {
           alt="User Avatar"
         />
         
-        <h3 className="text-xl font-bold text-gray-800 my-4 text-center">{user.subscribers?.length || 0} Subscribers</h3>
+        <h3 className="text-xl font-bold text-gray-800 my-4 text-center">{user. Suscribers?.length || 0} Subscribers</h3>
       </div>
 
       <div className="flex justify-center items-center py-4">

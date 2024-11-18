@@ -295,27 +295,25 @@ router.post("/unlikeVideo/:videoId", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
-// 13. Subscribe to Channel Route
+// Subscribe to Channel Route
 router.post("/subscribe/:channelId", verifyJWT, async (req, res) => {
     try {
         const channelId = req.params.channelId;
         const userId = req.user._id;
-
         if (channelId === userId.toString()) {
             return res.status(400).json({ message: "Cannot subscribe to your own channel." });
         }
-
-        const existingSubscription = await Subscription.findOne({
-            subscriber: userId,
-            channel: channelId
-        });
-        console.log(existingSubscription)
-        if (existingSubscription) {
+        const channel = await User.findById(channelId);
+        if (!channel) {
+            return res.status(404).json({ message: "Channel not found." });
+        }
+        const isAlreadySubscribed = channel.Suscribers.includes(userId);
+        if (isAlreadySubscribed) {
             return res.status(400).json({ message: "Already subscribed to this channel." });
         }
+        channel.Suscribers.push(userId);
+        await channel.save();
 
-        req.user.Suscribers.push(userId);
-        await video.save();
         return res.status(200).json({ message: "Subscribed to channel successfully." });
     } catch (error) {
         console.error("Subscribe to Channel Error:", error);
@@ -323,22 +321,23 @@ router.post("/subscribe/:channelId", verifyJWT, async (req, res) => {
     }
 });
 
-// 14. Unsubscribe from Channel Route
+// Unsubscribe from Channel Route
 router.post("/unsubscribe/:channelId", verifyJWT, async (req, res) => {
     try {
         const channelId = req.params.channelId;
         const userId = req.user._id;
-
-        const subscription = await Subscription.findOne({
-            subscriber: userId,
-            channel: channelId
-        });
-
-        if (!subscription) {
-            return res.status(404).json({ message: "Subscription not found." });
+        const channel = await User.findById(channelId);
+        if (!channel) {
+            return res.status(404).json({ message: "Channel not found." });
         }
-
-        await Subscription.deleteOne({ _id: subscription._id });
+        const isSubscribed = channel.Suscribers.includes(userId);
+        if (!isSubscribed) {
+            return res.status(400).json({ message: "You are not subscribed to this channel." });
+        }
+        channel.Suscribers = channel.Suscribers.filter(
+            (subscriberId) => subscriberId.toString() !== userId.toString()
+        );
+        await channel.save();
 
         return res.status(200).json({ message: "Unsubscribed from channel successfully." });
     } catch (error) {
@@ -346,6 +345,7 @@ router.post("/unsubscribe/:channelId", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
 //15.Search User By User Name
 router.post("/getUsers1", verifyJWT, async (req, res) => {
     try {
