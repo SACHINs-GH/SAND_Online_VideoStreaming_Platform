@@ -41,7 +41,7 @@ function SideNavbar() {
         <div className="flex flex-col space-y-4 mt-6">
           <Link to="/" className="flex items-center p-4 hover:bg-gray-700">
             <img
-              src="/assets/svgs/home.png"
+              src="./src/assets/svgs/home.png"
               alt="Home"
               height={28}
               width={28}
@@ -50,7 +50,7 @@ function SideNavbar() {
           </Link>
           <Link to="/upload" className="flex items-center p-4 hover:bg-gray-700">
             <img
-              src="/assets/svgs/upload.png"
+              src="./src/assets/svgs/upload.png"
               alt="Upload"
               height={28}
               width={28}
@@ -59,7 +59,7 @@ function SideNavbar() {
           </Link>
           <Link to="/subscription" className="flex items-center p-4 hover:bg-gray-700">
             <img
-              src="/assets/svgs/crown.png" 
+              src="./src/assets/svgs/crown.png" 
               alt="Subscriptions"
               height={28}
               width={28}
