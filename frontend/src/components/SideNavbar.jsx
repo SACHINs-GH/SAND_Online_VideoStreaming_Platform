@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';  // Import Link from react-router-dom
+import { Link } from 'react-router-dom';
 
 function SideNavbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -9,7 +9,7 @@ function SideNavbar() {
   };
 
   return (
-    <div className="flex h-screen sticky bg-gray-100">
+    <div className="flex min-h-screen sticky top-0 bg-gray-100">
       <div
         className={`${
           isSidebarOpen ? 'w-64' : 'w-20'

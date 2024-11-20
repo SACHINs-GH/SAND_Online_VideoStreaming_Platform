@@ -1,9 +1,12 @@
-import { useSelector } from 'react-redux';
+import { useSelector} from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function ViewVideo() {
     const video = useSelector((state) => state.watch.videoObject);
+    const navigate = useNavigate()
+    const place = useSelector((state) => state.watch.place)
     const user = useSelector((state) => state.auth.user);
     const [likesCount, setLikesCount] = useState(0);
     const [isLiked, setIsLiked] = useState(false);
@@ -34,7 +37,6 @@ function ViewVideo() {
         day: 'numeric',
     });
 
-    // Helper function to get token from localStorage
     const getAuthToken = () => {
         return localStorage.getItem('accessToken') || '';
     };
@@ -44,12 +46,12 @@ function ViewVideo() {
             const endpoint = `http://localhost:5000/user/${isLiked ? 'unlikeVideo' : 'likeVideo'}/${video._id}`;
             const response = await axios.post(
                 endpoint,
-                {}, // Empty body
+                {},
                 {
                     headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`, // Send the token as a Bearer token
+                        'Authorization': `Bearer ${getAuthToken()}`,
                     },
-                    withCredentials: true // Ensure cookies are sent
+                    withCredentials: true
                 }
             );
 
@@ -71,12 +73,12 @@ function ViewVideo() {
             const endpoint = `http://localhost:5000/user/${isSubscribed ? 'unsubscribe' : 'subscribe'}/${video.owner._id}`;
             const response = await axios.post(
                 endpoint,
-                {}, // Empty body
+                {},
                 {
                     headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`, // Send the token as a Bearer token
+                        'Authorization': `Bearer ${getAuthToken()}`,
                     },
-                    withCredentials: true // Ensure cookies are sent
+                    withCredentials: true
                 }
             );
 
@@ -92,9 +94,13 @@ function ViewVideo() {
             }
         }
     };
+    const handleBack = ()=>{
+        navigate(place)
+    }
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-screen p-8 bg-gray-900 text-white">
+            <button className='border border-white bg-blue-500 px-4 py-2 rounded-lg text-white' onClick={()=>handleBack()}>Back To Place</button>
             <h2 className="text-3xl font-semibold text-emerald-400 mb-6">{video.title}</h2>
             <video controls width="800" className="rounded-lg shadow-lg mb-6">
                 <source src={video.videoFile} type="video/mp4" />
@@ -106,15 +112,15 @@ function ViewVideo() {
                 <p className="mt-2 text-md text-gray-300">{video.description}</p>
             </div>
             <div className="flex w-6/12 justify-between items-center border border-white rounded-md p-2">
-                <button 
-                    onClick={handleLike} 
+                <button
+                    onClick={handleLike}
                     className={`border border-white rounded-md p-2 ${isLiked ? 'bg-green-500' : 'bg-blue-700'} text-white`}
                 >
                     {isLiked ? 'Unlike' : 'Like'} : {likesCount}
                 </button>
                 <button>{formattedDate}</button>
-                <button 
-                    onClick={handleSubscribe} 
+                <button
+                    onClick={handleSubscribe}
                     className={`border border-white rounded-md p-2 ${isSubscribed ? 'bg-gray-500' : 'bg-red-500'} text-white`}
                 >
                     {isSubscribed ? 'Unsubscribe' : 'Subscribe'} : {subscribersCount}

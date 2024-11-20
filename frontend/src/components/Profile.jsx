@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector ,useDispatch} from "react-redux";
+import { watchVideo } from "../features/watchVideoSlice";
+import { place } from "../features/watchVideoSlice";
 import axios from "axios";
 
 function Profile() {
   const user = useSelector((state) => state.auth.user);
-  const accessToken = useSelector((state) => state.auth.accessToken)
+  const accessToken = useSelector((state) => state.auth.accessToken);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,15 +16,14 @@ function Profile() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-
         const response = await axios.get("http://localhost:5000/user/getAllVideos", {
           headers: {
-            Authorization: `Bearer ${accessToken}`, 
+            Authorization: `Bearer ${accessToken}`,
           },
         });
-        const video = response.data.video
+        const video = response.data.video;
         const filteredVideo = video.filter((item) => item.owner._id === user._id);
-        setVideos(filteredVideo );
+        setVideos(filteredVideo);
       } catch (error) {
         console.error("Failed to fetch videos:", error);
       } finally {
@@ -29,16 +31,16 @@ function Profile() {
       }
     };
 
-    if (user) {
+    if (user && accessToken) {
       fetchVideos();
     }
-  }, [user]);
+  }, [user, accessToken]);
 
   const handleDelete = async (videoId) => {
     try {
       await axios.delete(`http://localhost:5000/deleteVideo/${videoId}`, {
         headers: {
-          Authorization: `Bearer ${user.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
       setVideos((prevVideos) => prevVideos.filter((video) => video._id !== videoId));
@@ -47,6 +49,12 @@ function Profile() {
       console.error("Failed to delete video:", error);
       alert("Error deleting video.");
     }
+  };
+  const handleWatchVideo = (video) => {
+    console.log('Dispatching video:', video);
+    dispatch(watchVideo({ videoObject: video }));
+    dispatch(place({place:'/profile'}))
+    navigate("/watch");
   };
 
   if (!user) {
@@ -74,7 +82,9 @@ function Profile() {
           alt="User Avatar"
         />
 
-        <h3 className="text-xl font-bold text-gray-800 my-4 text-center">{user.Suscribers?.length || 0} Subscribers</h3>
+        <h3 className="text-xl font-bold text-gray-800 my-4 text-center">
+          {user.Subscribers?.length || 0} Subscribers
+        </h3>
       </div>
 
       <div className="flex justify-center items-center py-4">
@@ -87,14 +97,29 @@ function Profile() {
         <div className="overflow-x-auto w-full px-4">
           <div className="grid grid-flow-col auto-cols-max gap-3">
             {videos.map((video) => (
-              <div key={video._id} className="bg-white rounded-lg shadow-md p-4 w-64">
-                <div className="bg-gray-300 h-48 mb-4">
-                  {/* Assuming video.thumbnail contains the thumbnail URL */}
-                  <img src={video.thumbnail} alt={video.title} className="h-full w-full object-cover" />
+              <div key={video._id} className="bg-white rounded-lg shadow-md p-4 w-64"
+                onClick={() => handleWatchVideo(video)}
+              >
+                <div className="relative bg-gray-300 h-48 mb-4">
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <button
+                      className="px-4 py-2 bg-emerald-500 text-white font-semibold rounded-lg shadow-md"
+                    >
+                      Watch Video
+                    </button>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold">{video.title}</h3>
+                <h3 className="text-lg font-semibold">{video.title || "Untitled Video"}</h3>
                 <p className="text-gray-600">{user.channelname}</p>
-                <p className="text-gray-500">{video.Likes.length} Likes • {video.createdAt && new Date(video.createdAt).toDateString()}</p>
+                <p className="text-gray-500">
+                  {video.Likes?.length || 0} Likes •{" "}
+                  {video.createdAt && new Date(video.createdAt).toDateString()}
+                </p>
                 <button
                   onClick={() => handleDelete(video._id)}
                   className="w-full mt-2 p-2 bg-red-500 text-white rounded hover:bg-red-600 transition"

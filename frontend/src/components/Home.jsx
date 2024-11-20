@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { watchVideo } from "../features/watchVideoSlice.js";
+import { place } from "../features/watchVideoSlice.js";
 import { useNavigate } from "react-router-dom";
 
 function Videos() {
@@ -27,10 +28,9 @@ function Videos() {
                     withCredentials: true,
                 });
                 if (response.data.video && response.data.video.length) {
-                    // Filter out videos that belong to the current user
-                    const filteredVideos = response.data.video.filter((video) => video.owner._id !== user._id);
                     
-                    // Sort videos by the creation date (assuming `createdAt` exists)
+                    const filteredVideos = response.data.video.filter((video) => video.owner._id !== user._id);
+
                     filteredVideos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
                     setVideos(filteredVideos);
@@ -51,6 +51,7 @@ function Videos() {
     const handleWatchVideo = (video) => {
         console.log('Dispatching video:', video);
         dispatch(watchVideo({ videoObject: video }));
+        dispatch(place({place:'/'}))
         navigate("/watch");
     };
 
