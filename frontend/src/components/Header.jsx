@@ -30,7 +30,7 @@ function Header() {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         alert("User Logout Successfully");
-        navigate('/');
+        navigate('/login');
       }
     } catch (error) {
       alert(error.response?.data?.message || "Failed to log out. Please try again.");

@@ -83,7 +83,6 @@ router.post(
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log(email+" "+password)
         if (!email || !password) {
             return res.status(400).json({ message: "All fields are required to log in." });
         }
@@ -300,19 +299,37 @@ router.post("/subscribe/:channelId", verifyJWT, async (req, res) => {
     try {
         const channelId = req.params.channelId;
         const userId = req.user._id;
+
         if (channelId === userId.toString()) {
             return res.status(400).json({ message: "Cannot subscribe to your own channel." });
         }
-        const channel = await User.findById(channelId);
+
+        const channel = await User.findById(channelId).populate("Videos");
         if (!channel) {
             return res.status(404).json({ message: "Channel not found." });
         }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
         const isAlreadySubscribed = channel.Suscribers.includes(userId);
         if (isAlreadySubscribed) {
             return res.status(400).json({ message: "Already subscribed to this channel." });
         }
+
         channel.Suscribers.push(userId);
+        user.SuscribeTo.push(channelId);
+
+        const channelVideos = channel.Videos;
+
+        if (channelVideos.length > 0) {
+            console.log(`Adding ${channelVideos.length} videos to user's feed`);
+        }
+
         await channel.save();
+        await user.save();
 
         return res.status(200).json({ message: "Subscribed to channel successfully." });
     } catch (error) {
@@ -320,68 +337,48 @@ router.post("/subscribe/:channelId", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
-
 // Unsubscribe from Channel Route
 router.post("/unsubscribe/:channelId", verifyJWT, async (req, res) => {
     try {
         const channelId = req.params.channelId;
         const userId = req.user._id;
-        const channel = await User.findById(channelId);
+
+        const channel = await User.findById(channelId).populate("Videos");
         if (!channel) {
             return res.status(404).json({ message: "Channel not found." });
         }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
         const isSubscribed = channel.Suscribers.includes(userId);
         if (!isSubscribed) {
             return res.status(400).json({ message: "You are not subscribed to this channel." });
         }
+
         channel.Suscribers = channel.Suscribers.filter(
             (subscriberId) => subscriberId.toString() !== userId.toString()
         );
+
+        user.SuscribeTo = user.SuscribeTo.filter(
+            (subscribedChannelId) => subscribedChannelId.toString() !== channelId.toString()
+        );
+
+        const channelVideos = channel.Videos;
+
+        if (channelVideos.length > 0) {
+            console.log(`Removing ${channelVideos.length} videos from user's feed`);
+        }
+
         await channel.save();
+        await user.save();
 
         return res.status(200).json({ message: "Unsubscribed from channel successfully." });
     } catch (error) {
         console.error("Unsubscribe from Channel Error:", error);
         return res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
-//15.Search User By User Name
-router.post("/getUsers1", verifyJWT, async (req, res) => {
-    try {
-        const { fullname } = req.body; 
-        if (!fullname) {
-            return res.status(400).json({ message: "For searching users, please enter a name." });
-        }
-
-        const users = await User.find({ fullname: fullname });
-        if (!users || users.length === 0) {
-            return res.status(404).json({ message: "No user found with this name." });
-        }
-
-        return res.status(200).json({ users: users });
-    
-    } catch (error) {
-        return res.status(503).json({ message: "Internal Server error" });
-    }
-});
-//16.Search User By channel name
-router.post("/getUsers2", verifyJWT, async (req, res) => {
-    try {
-        const { channelname } = req.body; 
-        if (!channelname) {
-            return res.status(400).json({ message: "For searching users, please enter a name." });
-        }
-
-        const users = await User.find({ channelname: channelname });
-        if (!users || users.length === 0) {
-            return res.status(404).json({ message: "No channel found with this name." });
-        }
-
-        return res.status(200).json({ users: users });
-    
-    } catch (error) {
-        return res.status(503).json({ message: "Internal Server error" });
     }
 });
 //17.get all Videos

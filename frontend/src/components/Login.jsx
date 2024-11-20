@@ -31,6 +31,7 @@ const Login = () => {
         navigate('/');
     } catch (error) {
       alert(error.response?.data?.message || 'Login failed. Please try again.');
+      navigate('/register')
     }
   };
 
