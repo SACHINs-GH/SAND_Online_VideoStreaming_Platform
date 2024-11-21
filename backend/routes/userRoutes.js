@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { User } from '../model/usermodel.js';
-import { uploadCloudinary } from "../cloudinary.js";
+import { uploadCloudinary,cloudinary } from "../cloudinary.js";
 import { upload } from '../multer.js';
 import {verifyJWT} from '../verifyJWT.js'
 import { Video } from "../model/videoModel.js";
@@ -211,40 +211,40 @@ router.post("/uploadVideo", verifyJWT, upload.fields([
 router.post('/deleteVideo/:videoId', verifyJWT, async (req, res) => {
     try {
         const videoId = req.params.videoId;
-
         const video = await Video.findById(videoId);
+
         if (!video) {
             return res.status(404).json({ message: "Video not found." });
         }
-        
+
         if (!video.owner.equals(req.user._id)) {
             return res.status(403).json({ message: "You do not have permission to delete this video." });
         }
 
         try {
-            await uploadCloudinary.uploader.destroy(video.videoFile);
-            await uploadCloudinary.uploader.destroy(video.thumbnail);
+            if (video.videoFile) {
+                await cloudinary.uploader.destroy(video.videoFile);
+            }
+            if (video.thumbnail) {
+                await cloudinary.uploader.destroy(video.thumbnail);
+            }
         } catch (cloudinaryError) {
             console.error("Cloudinary Deletion Error:", cloudinaryError);
             return res.status(500).json({ message: "Error deleting video from Cloudinary." });
         }
 
         await Video.findByIdAndDelete(videoId);
-
         await Comment.deleteMany({ video: videoId });
-
-        await User.findByIdAndUpdate(
-            req.user._id,
-            { $pull: { Videos: videoId } }
-        );
+        await User.findByIdAndUpdate(req.user._id, { $pull: { Videos: videoId } });
 
         return res.status(200).json({ message: "Video deleted successfully." });
-        
+
     } catch (error) {
         console.error("Delete Video Error:", error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
 // 7. Like Video Route
 router.post("/likeVideo/:videoId", verifyJWT, async (req, res) => {
     try {
@@ -390,6 +390,36 @@ router.get('/getAllVideos',verifyJWT,async(req,res)=>{
         return res.status(504).json({message:"Internal Server Error"})
     }
 })
+// Get Subscribed Users and their Videos
+router.get('/subscribed', verifyJWT, async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const subscribed = user.SuscribeTo;
+        if (!subscribed || subscribed.length === 0) {
+            return res.status(403).json({ message: "User is not subscribed to any channel" });
+        }
+        const videoPromises = subscribed.map((subscribedUserId) => {
+            return Video.find({ owner: subscribedUserId })
+                .populate('owner', '_id avatar channelname fullname');
+        });
+        const videosArray = await Promise.all(videoPromises);
+        const videos = videosArray.flat();
+
+        return res.status(200).json({
+            message: "Subscribed users' videos fetched successfully",
+            videos: videos
+        });
+    } catch (error) {
+        console.error("Error fetching subscribed users' videos:", error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
 //get userdata and video
 router.post('/getAfterSearch', verifyJWT, async (req, res) => {
     try {

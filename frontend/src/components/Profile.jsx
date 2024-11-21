@@ -36,20 +36,21 @@ function Profile() {
     }
   }, [user, accessToken]);
 
-  const handleDelete = async (videoId) => {
-    try {
-      await axios.delete(`http://localhost:5000/deleteVideo/${videoId}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      setVideos((prevVideos) => prevVideos.filter((video) => video._id !== videoId));
-      alert("Video deleted successfully!");
-    } catch (error) {
-      console.error("Failed to delete video:", error);
-      alert("Error deleting video.");
-    }
-  };
+const handleDelete = async (videoId) => {
+  try {
+    await axios.post(`http://localhost:5000/user/deleteVideo/${videoId}`, null, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    setVideos((prevVideos) => prevVideos.filter((video) => video._id !== videoId));
+    alert("Video deleted successfully!");
+  } catch (error) {
+    console.error("Failed to delete video:", error);
+    alert("Error deleting video.");
+  }
+};
+
   const handleWatchVideo = (video) => {
     console.log('Dispatching video:', video);
     dispatch(watchVideo({ videoObject: video }));
@@ -98,7 +99,6 @@ function Profile() {
           <div className="grid grid-flow-col auto-cols-max gap-3">
             {videos.map((video) => (
               <div key={video._id} className="bg-white rounded-lg shadow-md p-4 w-64"
-                onClick={() => handleWatchVideo(video)}
               >
                 <div className="relative bg-gray-300 h-48 mb-4">
                   <img
@@ -109,6 +109,7 @@ function Profile() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <button
                       className="px-4 py-2 bg-emerald-500 text-white font-semibold rounded-lg shadow-md"
+                      onClick={() => handleWatchVideo(video)}
                     >
                       Watch Video
                     </button>
