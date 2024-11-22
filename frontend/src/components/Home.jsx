@@ -1,4 +1,3 @@
-// src/components/Videos.jsx
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
@@ -49,9 +48,8 @@ function Videos() {
     }, [user]);
 
     const handleWatchVideo = (video) => {
-        console.log('Dispatching video:', video);
         dispatch(watchVideo({ videoObject: video }));
-        dispatch(place({place:'/'}))
+        dispatch(place({place:'/'}));
         navigate("/watch");
     };
 
@@ -72,11 +70,11 @@ function Videos() {
     }
 
     return (
-        <div className="bg-white w-full min-h-screen text-white p-4 md:p-6">
+        <div className="bg-white w-full min-h-screen text-white p-4 md:p-6 flex-1 flex flex-col overflow-y-auto space-y-8">
             <div className="w-full mx-auto">
                 <div 
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                    style={{ maxHeight: 'calc(92vh)', overflowY: 'auto' }}
+                    style={{ overflowY: 'auto' }}
                 >
                     {videos.length === 0 ? (
                         <p className="text-lg text-center text-gray-400">No videos available</p>
