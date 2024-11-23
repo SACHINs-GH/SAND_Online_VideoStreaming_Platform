@@ -1,29 +1,29 @@
 import { Router } from "express";
 import { User } from '../model/usermodel.js';
-import { uploadCloudinary,cloudinary } from "../cloudinary.js";
+import { uploadCloudinary, cloudinary } from "../cloudinary.js";
 import { upload } from '../multer.js';
-import {verifyJWT} from '../verifyJWT.js'
+import { verifyJWT } from '../verifyJWT.js'
 import { Video } from "../model/videoModel.js";
-import {Comment} from "../model/commentmodel.js"
+import { Comment } from "../model/commentmodel.js"
 
 const router = Router();
 // generate tokens
-const generateTokens = async(userId)=>{
-   try {
-     const user = await User.findById(userId);
-     if(!user){
-         throw new Error("user not found");
-     }
-     const accessToken = await user.generateAccessToken ();
-     const refreshToken = await user.generateRefreshToken();
-     user.refreshToken = refreshToken;
-     await user.save({ validateBeforeSave: false });
-     return { accessToken, refreshToken };
+const generateTokens = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error("user not found");
+        }
+        const accessToken = await user.generateAccessToken();
+        const refreshToken = await user.generateRefreshToken();
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+        return { accessToken, refreshToken };
 
-   } catch (error) {
+    } catch (error) {
         console.error("Error generating tokens:", error);
-        throw error; 
-   }
+        throw error;
+    }
 }
 
 // 1.Register Route
@@ -31,53 +31,53 @@ router.post(
     "/register",
     upload.fields([{ name: "avatar", maxCount: 1 }]),
     async (req, res) => {
-      try {
-        const { channelname, firstname, lastname, password, email } = req.body;
-        if (!channelname || !firstname || !lastname || !password || !email) {
-          return res.status(400).json({ message: "All fields are required." });
-        }
-        const existedUser = await User.findOne({ email });
-        if (existedUser) {
-          return res.status(409).json({ message: "User already exists." });
-        }
-        if (!req.files?.avatar || !req.files.avatar[0]) {
-          return res.status(400).json({ message: "Avatar file is required." });
-        }
-        let avatarUrl;
         try {
-          const avatarUploadResult = await uploadCloudinary(req.files.avatar[0].path);
-          if (!avatarUploadResult?.url) {
-            return res.status(500).json({ message: "Failed to upload avatar." });
-          }
-          avatarUrl = avatarUploadResult.url;
-        } catch (uploadError) {
-          console.error("Avatar Upload Error:", uploadError);
-          return res.status(500).json({ message: "Error uploading avatar." });
+            const { channelname, firstname, lastname, password, email } = req.body;
+            if (!channelname || !firstname || !lastname || !password || !email) {
+                return res.status(400).json({ message: "All fields are required." });
+            }
+            const existedUser = await User.findOne({ email });
+            if (existedUser) {
+                return res.status(409).json({ message: "User already exists." });
+            }
+            if (!req.files?.avatar || !req.files.avatar[0]) {
+                return res.status(400).json({ message: "Avatar file is required." });
+            }
+            let avatarUrl;
+            try {
+                const avatarUploadResult = await uploadCloudinary(req.files.avatar[0].path);
+                if (!avatarUploadResult?.url) {
+                    return res.status(500).json({ message: "Failed to upload avatar." });
+                }
+                avatarUrl = avatarUploadResult.url;
+            } catch (uploadError) {
+                console.error("Avatar Upload Error:", uploadError);
+                return res.status(500).json({ message: "Error uploading avatar." });
+            }
+            const user = await User.create({
+                channelname,
+                fullname: `${firstname} ${lastname}`,
+                password,
+                email,
+                avatar: avatarUrl,
+            });
+
+            const createdUser = await User.findById(user._id).select("-password -refreshToken");
+            if (!createdUser) {
+                return res.status(500).json({ message: "Server error during registration." });
+            }
+            res.status(201).json({
+                message: "User registered successfully.",
+                user: createdUser
+            });
+
+        } catch (error) {
+            console.error("Register Error:", error);
+            res.status(500).json({ message: "Internal Server Error." });
         }
-        const user = await User.create({
-          channelname,
-          fullname: `${firstname} ${lastname}`,
-          password,
-          email,
-          avatar: avatarUrl,
-        });
-  
-        const createdUser = await User.findById(user._id).select("-password -refreshToken");
-        if (!createdUser) {
-          return res.status(500).json({ message: "Server error during registration." });
-        }
-        res.status(201).json({
-          message: "User registered successfully.",
-          user: createdUser
-        });
-  
-      } catch (error) {
-        console.error("Register Error:", error);
-        res.status(500).json({ message: "Internal Server Error." });
-      }
     }
-  );
-  
+);
+
 
 //2.Login Route
 router.post("/login", async (req, res) => {
@@ -95,15 +95,15 @@ router.post("/login", async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Incorrect password. Please try again." });
         }
-    
+
         const { accessToken, refreshToken } = await generateTokens(user._id);
 
-        
+
         const loggedInUser = await User.findById(user._id).select('-password -refreshToken');
 
         const options = {
             httpOnly: true,
-            secure:true
+            secure: true
         };
 
         return res.status(200)
@@ -142,29 +142,29 @@ router.post("/logout", verifyJWT, async (req, res) => {
 //4.delete channel
 router.post("/deleteAccount", verifyJWT, async (req, res) => {
     try {
-      const userId = req.user._id;
-      await Subscription.deleteMany({ subscriber: userId });
-      await Video.deleteMany({ owner: userId });
-      await Comment.deleteMany({ owner: userId });
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User does not exist" });
-      }
-      const deletedUser = await User.deleteOne({ _id: userId });
-      if (deletedUser.deletedCount === 0) {
-        return res.status(400).json({ message: "Account deletion unsuccessful" });
-      }
-      return res.status(200).json({ message: "Account deleted successfully" });
+        const userId = req.user._id;
+        await Subscription.deleteMany({ subscriber: userId });
+        await Video.deleteMany({ owner: userId });
+        await Comment.deleteMany({ owner: userId });
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User does not exist" });
+        }
+        const deletedUser = await User.deleteOne({ _id: userId });
+        if (deletedUser.deletedCount === 0) {
+            return res.status(400).json({ message: "Account deletion unsuccessful" });
+        }
+        return res.status(200).json({ message: "Account deleted successfully" });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Internal server error during deletion" });
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error during deletion" });
     }
-  });
-  
+});
+
 // 5. Upload Video Route
 router.post("/uploadVideo", verifyJWT, upload.fields([
     { name: "videoFile", maxCount: 1 },
-    { name: "thumbnail", maxCount: 1 } 
+    { name: "thumbnail", maxCount: 1 }
 ]), async (req, res) => {
     try {
         const { title, description, type } = req.body;
@@ -199,7 +199,7 @@ router.post("/uploadVideo", verifyJWT, upload.fields([
             owner: req.user._id
         });
         await User.findByIdAndUpdate(req.user._id, { $push: { Videos: video._id } }, { new: true });
-        
+
         return res.status(201).json({ message: "Video uploaded successfully.", video });
 
     } catch (error) {
@@ -382,14 +382,54 @@ router.post("/unsubscribe/:channelId", verifyJWT, async (req, res) => {
     }
 });
 //17.get all Videos
-router.get('/getAllVideos',verifyJWT,async(req,res)=>{
-    try { 
+router.get('/getAllVideos', verifyJWT, async (req, res) => {
+    try {
         const video = await Video.find().populate('owner', '_id avatar channelname fullname Suscribers');
-        return res.status(203).json({video:video});
+        return res.status(203).json({ video: video });
     } catch (error) {
-        return res.status(504).json({message:"Internal Server Error"})
+        return res.status(504).json({ message: "Internal Server Error" })
     }
 })
+// comment add route
+router.post("/commentAdd/:videoId", verifyJWT, async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const videoId = req.params.videoId;
+        const { content } = req.body;
+        if (!content) {
+            return res.status(403).json({ message: "Please provide the content" });
+        }
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(403).json({ message: "User does not exist" });
+        }
+        const video = await Video.findById(videoId);
+        if (!video) {
+            return res.status(403).json({ message: "Video not found" });
+        }
+        const comment = await Comment.create({
+            content,
+            video: videoId,
+            owner: userId
+        });
+        return res.status(200).json({message:"Commnet add successfully"});
+    } catch (error) {
+        return res.status(500).json({ message: "Error creating comment", error: error.message });
+    }
+});
+// Get all comments
+router.get("/getComment", verifyJWT, async (req, res) => {
+    try {
+        const comments = await Comment.find()
+            .populate('video', '_id')
+            .populate('owner', '_id channelname');
+        return res.status(200).json({ comments });
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+});
+
+
 // Get Subscribed Users and their Videos
 router.get('/subscribed', verifyJWT, async (req, res) => {
     try {

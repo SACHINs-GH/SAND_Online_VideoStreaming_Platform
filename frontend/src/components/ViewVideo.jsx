@@ -12,29 +12,41 @@ function ViewVideo() {
     const [isLiked, setIsLiked] = useState(false);
     const [subscribersCount, setSubscribersCount] = useState(0);
     const [isSubscribed, setIsSubscribed] = useState(false);
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState('');
 
+    // Fetch comments and video data on mount or when video changes
     useEffect(() => {
-        if (video && user) {
+        if (video) {
+            // Update likes and subscriptions info
             setLikesCount(video.Likes?.length || 0);
             setIsLiked(video.Likes?.includes(user._id));
             setSubscribersCount(video.owner.Suscribers?.length || 0);
             setIsSubscribed(video.owner.Suscribers?.includes(user._id));
+
+            // Fetch comments for the video when it changes
+            fetchComments();
         }
-    }, [video, user]);
+    }, [video, user]); // Re-run when video or user changes
 
-    if (!video) {
-        return (
-            <div className="flex items-center justify-center w-full h-screen bg-gray-800 text-white">
-                <p className="text-lg">No video selected.</p>
-            </div>
-        );
-    }
+    // Fetch comments for a specific video
+    const fetchComments = async () => {
+        if (!video) return; // Avoid making request if video is not available
 
-    const formattedDate = new Date(video.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+        try {
+            const response = await axios.get(`http://localhost:5000/user/getComment`, {
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+                withCredentials: true
+            });
+            if (response.status === 200) {
+                setComments(response.data.comments || []);
+            }
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+        }
+    };
 
     const getAuthToken = () => {
         return localStorage.getItem('accessToken') || '';
@@ -90,6 +102,53 @@ function ViewVideo() {
         navigate(place);
     };
 
+    const handleCommentSubmit = async () => {
+        if (!newComment.trim()) return alert("Comment cannot be empty");
+
+        const confirmation = window.confirm("You are confirmed to post Comment. Do you want to proceed?");
+        if (confirmation) {
+            try {
+                const response = await axios.post(
+                    `http://localhost:5000/user/commentAdd/${video._id}`,
+                    { content: newComment },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        },
+                        withCredentials: true
+                    }
+                );
+
+                if (response.status === 200) {
+                    // Add the new comment directly to the state
+                    const newCommentData = {
+                        owner: { channelname: user.channelname },
+                        content: newComment,
+                    };
+                    setComments(prevComments => [...prevComments, newCommentData]); // Append new comment
+                    alert("Comment posted successfully");
+                    setNewComment(''); // Clear the input
+                }
+            } catch (error) {
+                console.error("Error posting comment:", error);
+            }
+        }
+    };
+
+    if (!video) {
+        return (
+            <div className="text-white">
+                <p>Video is loading...</p>
+            </div>
+        );
+    }
+
+    const formattedDate = new Date(video.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
     return (
         <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gray-900 text-white overflow-auto">
             <button 
@@ -122,6 +181,38 @@ function ViewVideo() {
                 >
                     {isSubscribed ? 'Unsubscribe' : 'Subscribe'} : {subscribersCount}
                 </button>
+            </div>
+            <div className="mt-8 w-full max-w-md">
+                <h3 className="text-xl font-semibold text-emerald-400">Comments</h3>
+                <div className="mt-4 bg-white text-black p-4 rounded-md max-h-64 overflow-y-auto">
+                    {comments.length > 0 ? (
+                        <ul>
+                            {comments.map((comment, index) => (
+                                <li key={index} className="border-b border-gray-300 p-2">
+                                    <p className="font-semibold">{comment.owner.channelname}:</p>
+                                    <p className="text-gray-600">{comment.content}</p>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500">No comments yet.</p>
+                    )}
+                </div>
+                <div className="mt-4">
+                    <textarea
+                        className="w-full p-2 bg-gray-800 text-white rounded-md"
+                        rows="4"
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Write a comment..."
+                    ></textarea>
+                    <button
+                        onClick={handleCommentSubmit}
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                    >
+                        Post Comment
+                    </button>
+                </div>
             </div>
         </div>
     );
