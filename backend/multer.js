@@ -3,7 +3,7 @@ import multer from 'multer';
 let storage;
 try {
    storage = multer.diskStorage({
-      destination: function (req, file, cb) {  // Change here: use 'file' instead of 'res'
+      destination: function (req, file, cb) { 
         cb(null, "./public/temp");
       },
       filename: function (req, file, cb) {
