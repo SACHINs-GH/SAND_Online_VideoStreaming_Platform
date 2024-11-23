@@ -14,24 +14,17 @@ function ViewVideo() {
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
-
-    // Fetch comments and video data on mount or when video changes
     useEffect(() => {
         if (video) {
-            // Update likes and subscriptions info
             setLikesCount(video.Likes?.length || 0);
             setIsLiked(video.Likes?.includes(user._id));
             setSubscribersCount(video.owner.Suscribers?.length || 0);
             setIsSubscribed(video.owner.Suscribers?.includes(user._id));
-
-            // Fetch comments for the video when it changes
             fetchComments();
         }
-    }, [video, user]); // Re-run when video or user changes
-
-    // Fetch comments for a specific video
+    }, [video, user]);
     const fetchComments = async () => {
-        if (!video) return; // Avoid making request if video is not available
+        if (!video) return;
 
         try {
             const response = await axios.get(`http://localhost:5000/user/getComment`, {
@@ -120,14 +113,13 @@ function ViewVideo() {
                 );
 
                 if (response.status === 200) {
-                    // Add the new comment directly to the state
                     const newCommentData = {
                         owner: { channelname: user.channelname },
                         content: newComment,
                     };
-                    setComments(prevComments => [...prevComments, newCommentData]); // Append new comment
+                    setComments(prevComments => [...prevComments, newCommentData]);
                     alert("Comment posted successfully");
-                    setNewComment(''); // Clear the input
+                    setNewComment(''); 
                 }
             } catch (error) {
                 console.error("Error posting comment:", error);
@@ -184,7 +176,7 @@ function ViewVideo() {
             </div>
             <div className="mt-8 w-full max-w-md">
                 <h3 className="text-xl font-semibold text-emerald-400">Comments</h3>
-                <div className="mt-4 bg-white text-black p-4 rounded-md max-h-64 overflow-y-auto">
+                <div className="mt-4 bg-white text-black p-4 rounded-md max-h-48 overflow-y-auto">
                     {comments.length > 0 ? (
                         <ul>
                             {comments.map((comment, index) => (
