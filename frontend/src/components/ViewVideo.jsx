@@ -34,7 +34,10 @@ function ViewVideo() {
                 withCredentials: true
             });
             if (response.status === 200) {
-                setComments(response.data.comments || []);
+                const commentsData = response.data.comments || [];
+                const filteredComments = commentsData.filter((comment) => comment.video._id === video._id);
+                setComments(filteredComments);
+
             }
         } catch (error) {
             console.error("Error fetching comments:", error);
@@ -119,7 +122,7 @@ function ViewVideo() {
                     };
                     setComments(prevComments => [...prevComments, newCommentData]);
                     alert("Comment posted successfully");
-                    setNewComment(''); 
+                    setNewComment('');
                 }
             } catch (error) {
                 console.error("Error posting comment:", error);
@@ -143,8 +146,8 @@ function ViewVideo() {
 
     return (
         <div className="flex flex-col items-center justify-center w-full min-h-screen p-4 bg-gray-900 text-white overflow-auto">
-            <button 
-                className="border border-white bg-blue-500 px-4 py-2 rounded-lg text-white mb-4" 
+            <button
+                className="border border-white bg-blue-500 px-4 py-2 rounded-lg text-white mb-4"
                 onClick={handleBack}
             >
                 Back To Place
