@@ -25,7 +25,6 @@ const generateTokens = async (userId) => {
         throw error;
     }
 }
-
 // 1.Register Route
 router.post(
     "/register",
@@ -77,8 +76,6 @@ router.post(
         }
     }
 );
-
-
 //2.Login Route
 router.post("/login", async (req, res) => {
     try {
@@ -121,7 +118,6 @@ router.post("/login", async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
-
 // 3. Logout Route
 router.post("/logout", verifyJWT, async (req, res) => {
     try {
@@ -138,7 +134,6 @@ router.post("/logout", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
-
 //4.delete channel
 router.post("/deleteAccount", verifyJWT, async (req, res) => {
     try {
@@ -160,7 +155,6 @@ router.post("/deleteAccount", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal server error during deletion" });
     }
 });
-
 // 5. Upload Video Route
 router.post("/uploadVideo", verifyJWT, upload.fields([
     { name: "videoFile", maxCount: 1 },
@@ -244,7 +238,6 @@ router.post('/deleteVideo/:videoId', verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
-
 // 7. Like Video Route
 router.post("/likeVideo/:videoId", verifyJWT, async (req, res) => {
     try {
@@ -269,7 +262,6 @@ router.post("/likeVideo/:videoId", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
-
 // 8. Unlike Video Route
 router.post("/unlikeVideo/:videoId", verifyJWT, async (req, res) => {
     try {
@@ -428,8 +420,6 @@ router.get("/getComment", verifyJWT, async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 });
-
-
 // Get Subscribed Users and their Videos
 router.get('/subscribed', verifyJWT, async (req, res) => {
     try {
@@ -458,37 +448,39 @@ router.get('/subscribed', verifyJWT, async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-
-//get userdata and video
-router.post('/getAfterSearch', verifyJWT, async (req, res) => {
+// Video and user search route
+router.post('/search', verifyJWT,async (req, res) => {
     try {
-        const { data } = req.body;
-        let SearchedData = await User.find({ fullname: data });
-        if (!SearchedData || SearchedData.length === 0) {
-            SearchedData = await User.find({ channelname: data });
-        }
+        console.log("search Data",req.body);
+        const { content } = req.body;
 
-        if (SearchedData && SearchedData.length > 0) {
-            const userIds = SearchedData.map(user => user._id);
-            console.log(userIds)
-            const videos = await Video.find({ owner: { $in: userIds } });
-            return res.status(201).json({ SearchedData, videos });
+        if (!content) {
+            return res.status(400).json({ message: "Search content is required" });
         }
-        if (!SearchedData || SearchedData.length === 0) {
-            SearchedData = await Video.find({ type: data });
-        }
-        if (!SearchedData || SearchedData.length === 0) {
-            SearchedData = await Video.find({ title: data });
-        }
-        if (!SearchedData || SearchedData.length === 0) {
-            return res.status(403).json({ message: "Such type of user or video not found" });
-        }
-        return res.status(201).json({ SearchedData });
+        const searchRegex = new RegExp(content, 'i');
+        const matchingUsers = await User.find({
+            $or: [
+                { fullname: searchRegex },
+                { channelname: searchRegex }
+            ]
+        });
+        const userIds = matchingUsers.map(user => user._id);
+        const videos = await Video.find({
+            $or: [
+                { owner: { $in: userIds } }, 
+                { title: searchRegex },        
+                { description: searchRegex },     
+                { type: searchRegex }        
+            ]
+        })
+        .populate('owner', 'channelname') 
+        .sort({ createdAt: -1 })           
+        .limit(20);                       
 
+        res.json(videos);
     } catch (error) {
-        console.error(error);
-        return res.status(503).json({ message: "Internal Server Error" });
+        console.error("Error fetching videos:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
 

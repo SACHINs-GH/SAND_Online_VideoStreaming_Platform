@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { clearAuth } from '../features/authSlice';
-
+import { setSearchedData } from '../features/seachesdData.js'
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
+  const accessToken = useSelector((state)=>state.auth.accessToken)
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const [searchInput, setSearchInput] = useState('');
 
   const handleLogout = async (e) => {
     e.preventDefault();
@@ -36,7 +39,26 @@ function Header() {
       alert(error.response?.data?.message || "Failed to log out. Please try again.");
     }
   };
-
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/user/search", 
+        { content: searchInput },
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      dispatch(setSearchedData({ searchedData: response.data }));
+      navigate('/search');
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      alert("Failed to retrieve search results.");
+    }
+  };
   return (
     <div className="flex justify-between items-center p-4 bg-white shadow-md h-16">
       {/* Logo */}
@@ -46,14 +68,18 @@ function Header() {
 
       {/* Search Bar */}
       <div className="flex items-center w-1/2">
-        <input
-          type="text"
-          placeholder="Search"
-          className="p-2 w-full text-center border border-gray-300 rounded-l-full focus:outline-none text-lg"
-        />
-        <button className="p-2.5 bg-blue-300 border-l border-gray-300 rounded-r-full">
-          <img src="./src/assets/svgs/search.png" alt="search" height={28} width={28} />
-        </button>
+        <form onSubmit={handleSearchSubmit} className="flex w-full">
+          <input
+            type="text"
+            placeholder="Search"
+            className="p-2 w-full text-center border border-gray-300 rounded-l-full focus:outline-none text-lg"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <button type="submit" className="p-2.5 bg-blue-300 border-l border-gray-300 rounded-r-full">
+            <img src="./src/assets/svgs/search.png" alt="search" height={28} width={28} />
+          </button>
+        </form>
       </div>
 
       {/* User Info or Login Button */}

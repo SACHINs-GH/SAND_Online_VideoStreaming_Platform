@@ -10,4 +10,5 @@ import Subscription from "./Subscription"
 import Uplaod from "./Upload"
 import SideNavbar from "./sideNavbar"
 import ViewVideo from "./ViewVideo"
-export {About,Contact,Footer,Header,Home,Login,Register,Profile,Subscription,Uplaod,SideNavbar,ViewVideo}
+import SearchedData from "./SearchedData"
+export {About,Contact,Footer,Header,Home,Login,Register,Profile,Subscription,Uplaod,SideNavbar,ViewVideo,SearchedData}
