@@ -16,11 +16,6 @@ function Footer() {
                     <Link to="/" className="hover:underline hover:text-red-500">Home</Link>
                     <Link to="/about" className="hover:underline hover:text-red-500">About</Link>
                     <Link to="/contact" className="hover:underline hover:text-red-500">Contact</Link>
-                    {!user ? (
-                        <Link to="/login" className="hover:underline hover:text-red-500">Login</Link>
-                    ) : (
-                        <Link to="/profile" className="hover:underline hover:text-red-500">Profile</Link>
-                    )}
                 </div>
             </div>
         </footer>

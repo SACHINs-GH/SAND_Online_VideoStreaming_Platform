@@ -63,7 +63,7 @@ function Videos() {
                 <div className="text-center p-8 bg-gray-800 rounded-lg shadow-lg">
                     <h2 className="text-3xl font-bold text-red-500 mb-4">Oops!</h2>
                     <p className="text-xl">{error}</p>
-                    <p className="text-md mt-4 text-gray-400">Please sign up or log in to enjoy our video collection.</p>
+                    <p className="text-md mt-4 text-gray-400">Please Sign Up or Log In to enjoy our Video Streaming Services.</p>
                 </div>
             </div>
         );

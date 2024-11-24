@@ -53,24 +53,28 @@ function About() {
                                 role: "Frontend Developer",
                                 description:
                                     "Specializes in creating intuitive, beautiful user interfaces using React and Tailwind CSS.",
+                                imgPath:"./src/assets/images/Sachin's Pic.jpg"
                             },
                             {
                                 name: "Nikhil Bansal",
                                 role: "Backend Developer",
                                 description:
                                     "Passionate about scalable systems and APIs. Works with Node.js and MongoDB to ensure seamless data flow.",
+                                imgPath:"./src/assets/images/Nikhil's Pic.jpg"
                             },
                             {
                                 name: "Divyanshi Gupta",
                                 role: "UI/UX Designer",
                                 description:
                                     "Ensures the platform is both visually appealing and user-friendly, focusing on a seamless user experience.",
+                                imgPath:""
                             },
                             {
                                 name: "Abhi Gupta",
                                 role: "DevOps Engineer",
                                 description:
                                     "Handles deployment and server management, ensuring that the platform is fast, reliable, and secure.",
+                                imgPath:"./src/assets/images/Abhi's Pic.jpg"
                             },
                         ].map((dev, index) => (
                             <div
@@ -78,7 +82,7 @@ function About() {
                                 className="bg-gray-800 rounded-md p-4 text-center shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1"
                             >
                                 <img
-                                    src=""
+                                    src={dev.imgPath}
                                     alt={dev.name}
                                     className="w-20 h-20 mx-auto rounded-full mb-3 border-2 border-emerald-400"
                                 />

@@ -87,11 +87,17 @@ function Header() {
         <div className="flex items-center gap-4">
           <span className="hidden sm:inline text-sm">{user.fullname}</span>
           <div className="h-10 w-10 rounded-full bg-gray-400 overflow-hidden">
-            <img
-              src={user.avatar}
-              alt="Avatar"
-              className="h-full w-full object-cover"
-            />
+            {!user ? (
+                <Link to="/login"/>
+            ) : (
+              <Link to="/profile">
+                <img
+                  src={user.avatar}
+                  alt="Avatar"
+                  className="h-full w-full object-cover"
+                />            
+              </Link>
+            )}            
           </div>
           <button
             onClick={handleLogout}
