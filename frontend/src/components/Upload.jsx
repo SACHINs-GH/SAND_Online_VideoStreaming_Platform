@@ -132,14 +132,15 @@ function Upload() {
                         required
                     />
                 </div>
-
-                <button
-                    type="submit"
-                    className="w-1/3 p-3 bg-teal-500 text-white rounded-lg hover:bg-teal-700 hover:scale-110 transition-all transform mb-4"
-                    disabled={loading}
-                >
-                    {loading ? "Uploading..." : "Upload Video"}
-                </button>
+                <div className="flex justify-center">
+                    <button
+                        type="submit"
+                        className="w-1/3 p-3 bg-teal-500  text-white rounded-lg hover:bg-teal-700 hover:scale-110 transition-all transform mb-4"
+                        disabled={loading}
+                    >
+                        {loading ? "Uploading..." : "Upload Video"}
+                    </button>
+                </div>
             </form>
         </div>
     );

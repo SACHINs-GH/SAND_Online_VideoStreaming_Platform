@@ -33,7 +33,7 @@ function Subscription() {
                 }, {});
                 setSubscribedData(Object.values(groupedData));
             } catch (error) {
-                setError('Error fetching data');
+                setError('You Have Not Logged In Yet !!');
                 console.error(error);
             } finally {
                 setLoading(false);

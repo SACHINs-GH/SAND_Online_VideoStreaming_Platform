@@ -84,7 +84,7 @@ const handleDelete = async (videoId) => {
         />
 
         <h3 className="text-xl font-bold text-gray-800 my-4 text-center">
-          {user.Subscribers?.length || 0} Subscribers
+          {user.Suscribers?.length || 0} Subscribers
         </h3>
       </div>
 
