@@ -448,7 +448,7 @@ router.get('/subscribed', verifyJWT, async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-// Video and user search route
+// Video and user search route4
 router.post('/search', verifyJWT,async (req, res) => {
     try {
         console.log("search Data",req.body);
