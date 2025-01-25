@@ -5,7 +5,6 @@ import { upload } from '../multer.js';
 import { verifyJWT } from '../verifyJWT.js'
 import { Video } from "../model/videoModel.js";
 import { Comment } from "../model/commentmodel.js"
-import ffmpeg from "fluent-ffmpeg";
 
 const router = Router();
 // generate tokens
